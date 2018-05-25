@@ -39,6 +39,7 @@ Public Sub Form_Open()
   bLOAD.text = "LOAD"
   bRESET.text = "RESET"
   tbMEM.text = 0
+  cbUnderOverStack.text = "SUO"
     
   vm = sm1_init(16384, 32, 32)
   sm1_write_vm("pc", 0, vm)
@@ -119,7 +120,6 @@ Public Sub Form_Open()
   Next
   tDP[0, 0].Background = Color.blue
   tRP[0, 0].Background = Color.blue
-
 End
 
 Public Sub ClearMemory()
@@ -128,7 +128,6 @@ Public Sub ClearMemory()
    sm1_write_ds(addr, 0, vm)
    sm1_write_rs(addr, 0, vm)
   Next
-  
 End
 
 
@@ -173,28 +172,38 @@ Public Sub MemColor()
 End
 
 Public Sub RegistersRefresh()
-  tbT.text = Hex$(sm1_read_vm("t", vm))
-  tbPC.text = Hex$(sm1_read_vm("pc", vm))
-  tbDP.text = Hex$(sm1_read_vm("dp", vm))
-  tbRP.text = Hex$(sm1_read_vm("rp", vm))
-  tbT_EXT.text = Hex$(sm1_read_vm("t_ext", vm))
-  tbN_EXT.text = Hex$(sm1_read_vm("n_ext", vm))
-  tbSTATUS.text = Hex$(sm1_read_vm("status", vm))
+  tbT.text = Hex$(CLong(sm1_read_vm("t", vm)) And &hffff&, 4)
+  tbPC.text = Hex$(CLong(sm1_read_vm("pc", vm)) And &hffff&, 4)
+  tbDP.text = Hex$(CLong(sm1_read_vm("dp", vm)) And &hffff&, 4)
+  tbRP.text = Hex$(CLong(sm1_read_vm("rp", vm)) And &hffff&, 4)
+  tbT_EXT.text = Hex$(CLong(sm1_read_vm("t_ext", vm)) And &hffff&, 4)
+  tbN_EXT.text = Hex$(CLong(sm1_read_vm("n_ext", vm)) And &hffff&, 4)
+  tbSTATUS.text = Hex$(CLong(sm1_read_vm("status", vm)) And &hffff&, 4)
 End
 
 Public Sub StacksRefresh()
   Dim n As Integer
+  Dim rp As Integer
+  Dim dp As Integer
   
   For n = 0 To 31
-    tDS[n, 0].text = Hex$(sm1_read_ds(n, vm))
+    tDS[n, 0].text = Hex$(CLong(sm1_read_ds(n, vm)) And &hffff&, 4)
     tRP[n, 0].Background = Color.Background
   Next
   For n = 0 To 31
-    tRS[n, 0].text = Hex$(sm1_read_rs(n, vm))
+    tRS[n, 0].text = Hex$(CLong(sm1_read_rs(n, vm)) And &hffff&, 4)
     tDP[n, 0].Background = Color.Background
   Next
-  tRP[sm1_read_vm("rp", vm), 0].Background = Color.Blue
-  tDP[sm1_read_vm("dp", vm), 0].Background = Color.Blue
+  rp = sm1_read_vm("rp", vm)
+  dp = sm1_read_vm("dp", vm)
+  If (dp < 0 Or dp > 31 Or rp < 0 Or rp > 31) Then
+    cbUnderOverStack.value = True
+    cbUnderOverStack.Background = Color.Red
+  Else
+    tRP[rp, 0].Background = Color.Blue
+    tDP[dp, 0].Background = Color.Blue
+  Endif
+  
 End
 
 
@@ -225,9 +234,21 @@ Public Sub bStep_Click()
     Return
   Endif
   word = sm1_mem_get(sm1_read_vm("pc", vm), vm)
-  tbWORD.text = Hex$(word)
-  tbRESULT.text = Hex$(sm1_step(word, vm))
+  tbWORD.text = Hex$(CLong(word) And &hffff&, 4)
+  tbRESULT.text = Hex$(CLong(sm1_step(word, vm)) And &hffff&, 4)
   RegistersRefresh
   StacksRefresh
   MemColor
+End
+
+Public Sub Panel1_MouseDown()
+
+  
+
+End
+
+Public Sub tbT_EXT_KeyPress()
+
+  
+
 End
