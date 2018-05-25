@@ -1,0 +1,170 @@
+' Gambas class file
+
+Library "/opt/Hiperion/Desarrollos/workspace_SM1/SM1lib/Release/libSM1lib"
+Extern sm1_init(ramSize As Integer, rsSize As Integer, dsSize As Integer) As Pointer Exec "init"
+Extern sm1_step(word As Integer, vm As Pointer) As Integer Exec "step"
+Extern sm1_mem_get(addr As Integer, vm As Pointer) As Integer Exec "mem_get"
+Extern sm1_mem_put(addr As Integer, value As Integer, vm As Pointer) As Integer Exec "mem_put"
+Extern sm1_read_vm(var As String, vm As Pointer) As Integer Exec "read_vm"
+Extern sm1_write_vm(var As String, value As Integer, vm As Pointer) As Integer Exec "write_vm"
+Extern sm1_read_ds(addr As Integer, vm As Pointer) As Integer Exec "read_ds"
+Extern sm1_write_ds(addr As Integer, vm As Pointer) As Integer Exec "write_ds"
+Extern sm1_read_rs(addr As Integer, vm As Pointer) As Integer Exec "read_rs"
+Extern sm1_write_rs(addr As Integer, vm As Pointer) As Integer Exec "write_rs"
+Static Public vm As Pointer
+Static result As Integer
+
+
+Public Sub Form_Open()
+  Dim n As Integer
+  Dim m As Integer
+  
+  lMEM.text = "MEMORY"
+  lDS.text = "DS"
+  lRS.text = "RS"
+  lPC.text = "PC"
+  lT.text = "t"
+  lDP.text = "DP"
+  lRP.text = "RP"
+  lT_EXT.text = "t_ext"
+  lN_EXT.text = "n_ext"
+  lSTATUS.text = "STATUS"
+  bStart.text = "START"
+  bStop.text = "STOP"
+  bSTEP.text = "STEP"
+  lIRQ.text = "IRQ"
+  lRESULT.text = "RESULT"
+  lWORD.text = "WORD"
+  bLOAD.text = "LOAD"
+  bRESET.text = "RESET"
+  tbMEM.text = 0
+    
+  vm = sm1_init(16384, 32, 32)
+  sm1_write_vm("pc", 0, vm)
+  sm1_write_vm("dp", 0, vm)
+  sm1_write_vm("rp", 0, vm)
+  sm1_write_vm("t_ext", 0, vm)
+  sm1_write_vm("n_ext", 0, vm)
+  sm1_write_vm("status", 0, vm)
+  
+  tbPC.text = sm1_read_vm("pc", vm)
+  tbT.text = sm1_read_vm("t", vm)
+  tbDP.text = sm1_read_vm("dp", vm)
+  tbRP.text = sm1_read_vm("rp", vm)
+  tbT_EXT.text = sm1_read_vm("t_ext", vm)
+  tbN_EXT.text = sm1_read_vm("n_ext", vm)
+  tbSTATUS.text = sm1_read_vm("status", vm)
+  tbRESULT.text = result
+  sbIRQ.Value = 0
+  tbWORD.text = "NULL"
+
+  With tMEM
+   .Columns.Count = 128
+   .Rows.Count = 128
+   .font.name = "Sans"
+   .font.size = 9   
+  End With
+  For n = 0 To 127
+    tMEM.Columns[n].width = 6
+  Next
+  For n = 0 To 127
+    tMEM.Rows[n].Height = 4
+  Next
+  For n = 0 To 127
+    For m = 0 To 127
+     tMEM[n, m].Background = Color.Blue
+    Next
+  Next
+  
+  With tDS
+  .Columns.Count = 1
+  .Rows.Count = 32
+  .font.name = "Sans"
+  .font.size = 9
+  End With
+  With tRS
+  .Columns.Count = 1
+  .Rows.Count = 32
+  .font.name = "Sans"
+  .font.size = 9
+  End With
+  With tSPOS
+  .Columns.Count = 1
+  .Rows.Count = 32
+  .font.name = "Sans"
+  .font.size = 8
+  End With
+  With tDP
+  .Columns.Count = 1
+  .Rows.Count = 32
+  .font.name = "Sans"
+  .font.size = 9
+  End With
+  With tRP
+  .Columns.Count = 1
+  .Rows.Count = 32
+  .font.name = "Sans"
+  .font.size = 9
+  End With
+  For n = 0 To 31
+    tDS.Rows[n].Height = 15
+    tRS.Rows[n].Height = 15
+    tSPOS.Rows[n].Height = 15
+    tRP.Rows[n].Height = 15
+    tDP.Rows[n].Height = 15
+    tSPOS[n, 0].text = n
+  Next
+  tDP[0, 0].Background = Color.blue
+  tRP[0, 0].Background = Color.blue
+End
+
+Public Sub LoadFile(file As String)
+  Dim hFile As File
+  Dim word As Short
+  Dim addr As Short
+ 
+  addr = 0
+  hFile = Open file For Input
+  While Not Eof(hFile)
+   word = Read #hFile As Short
+   sm1_mem_put(addr, word, vm)
+   addr = addr + 1
+   If (addr > 16387) Then Break
+  Wend
+  MemColor
+  
+End
+Public Sub MemColor()
+  Dim r As Byte
+  Dim g As Byte
+  Dim b As Byte
+  Dim n As Integer
+  Dim m As Integer
+  Dim addr As Short
+  Dim word As Short
+  
+  b = 15
+  For n = 0 To 127
+    For m = 0 To 127
+      addr = (n * 128) + m
+      word = sm1_mem_get(addr, vm)
+      r = word
+      g = Lsr(word, 8) 
+     tMEM[n, m].Background = Color.RGB(r, g, b)
+    Next
+  Next
+End
+
+Public Sub bLoad_Click()
+  load.Activate
+  load.Raise
+End
+
+Public Sub sbIRQ_Click()
+  If (sbIRQ.Value = True) Then 
+    sbIRQ.Background = Color.Red
+  Else
+    sbIRQ.Background = Color.Green
+  Endif
+End
+

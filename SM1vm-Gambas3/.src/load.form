@@ -1,0 +1,14 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,128,68)
+  { FileChooser1 FileChooser
+    MoveScaled(1,1,126,61)
+  }
+  { bLoadACCEPT Button
+    MoveScaled(118,63,9,4)
+  }
+  { bLoadCANCEL Button
+    MoveScaled(107,63,9,4)
+  }
+}

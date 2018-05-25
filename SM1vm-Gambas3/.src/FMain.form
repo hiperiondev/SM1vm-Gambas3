@@ -1,0 +1,143 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,154,80)
+  { Panel1 Panel
+    MoveScaled(0,0,154,80)
+    { bLoad Button
+      MoveScaled(143,75,10,4)
+    }
+    { bStart Button
+      MoveScaled(143,5,10,4)
+    }
+    { bStop Button
+      MoveScaled(143,10,10,4)
+    }
+    { bStep Button
+      MoveScaled(143,15,10,4)
+    }
+    { tDS TableView
+      MoveScaled(13,5,7,69)
+      ScrollBar = Scroll.None
+      AutoResize = False
+    }
+    { tRS TableView
+      MoveScaled(3,5,7,69)
+      ScrollBar = Scroll.None
+      AutoResize = False
+    }
+    { tMEM TableView
+      MoveScaled(32,5,110,74)
+      ScrollBar = Scroll.None
+      AutoResize = False
+    }
+    { lDS Label
+      MoveScaled(13,1,7,4)
+      Alignment = Align.Center
+    }
+    { lRS Label
+      MoveScaled(3,1,7,4)
+      Alignment = Align.Center
+    }
+    { lMEM Label
+      MoveScaled(32,1,24,4)
+    }
+    { tSPOS TableView
+      MoveScaled(10,5,3,69)
+      ScrollBar = Scroll.None
+      AutoResize = False
+    }
+    { !tbPC TextBox
+      MoveScaled(23,18,8,4)
+      #Public = True
+    }
+    { tbT TextBox
+      MoveScaled(23,5,7,2)
+    }
+    { lPC Label
+      MoveScaled(23,14,8,4)
+      Alignment = Align.Center
+    }
+    { lT Label
+      MoveScaled(22,1,8,4)
+      Alignment = Align.Center
+    }
+    { lDP Label
+      MoveScaled(23,23,8,4)
+      Alignment = Align.Center
+    }
+    { tbDP TextBox
+      MoveScaled(23,27,8,4)
+    }
+    { lRP Label
+      MoveScaled(23,32,8,4)
+      Alignment = Align.Center
+    }
+    { tbRP TextBox
+      MoveScaled(23,36,8,4)
+    }
+    { lT_EXT Label
+      MoveScaled(23,41,8,4)
+      Alignment = Align.Center
+    }
+    { tbT_EXT TextBox
+      MoveScaled(23,45,8,4)
+    }
+    { lN_EXT Label
+      MoveScaled(23,50,8,4)
+      Alignment = Align.Center
+    }
+    { tbN_EXT TextBox
+      MoveScaled(23,54,8,4)
+    }
+    { lSTATUS Label
+      MoveScaled(23,59,8,4)
+      Alignment = Align.Center
+    }
+    { tbSTATUS TextBox
+      MoveScaled(23,63,8,4)
+    }
+    { lRESULT Label
+      MoveScaled(143,29,10,4)
+      Alignment = Align.Center
+    }
+    { tbRESULT TextBox
+      MoveScaled(143,33,10,4)
+      ReadOnly = True
+    }
+    { lWORD Label
+      MoveScaled(143,39,10,4)
+      Alignment = Align.Center
+    }
+    { tbWORD TextBox
+      MoveScaled(143,43,10,4)
+    }
+    { tbMEM TextBox
+      MoveScaled(42,1,14,4)
+    }
+    { tDP TableView
+      MoveScaled(20,5,2,69)
+      ScrollBar = Scroll.None
+      AutoResize = False
+    }
+    { !tbFILE TextBox
+      MoveScaled(1,75,30,4)
+      #Public = True
+    }
+    { sbIRQ SwitchButton
+      MoveScaled(143,23,10,4)
+    }
+    { lIRQ Label
+      MoveScaled(143,20,10,4)
+      Alignment = Align.Center
+    }
+    { bRESET Button
+      MoveScaled(143,70,10,4)
+    }
+  }
+  { tRP TableView
+    MoveScaled(1,5,2,69)
+    ScrollBar = Scroll.None
+    AutoResize = False
+  }
+}

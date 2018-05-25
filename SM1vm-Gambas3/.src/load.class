@@ -1,0 +1,19 @@
+' Gambas class file
+
+
+
+Public Sub Form_Open()
+  bLoadACCEPT.text = "ACCEPT"
+  bLoadCANCEL.text = "CANCEL"
+End
+
+Public Sub bLoadACCEPT_Click()
+  FMain.tbFILE.text = FileChooser1.SelectedPath
+  FMain.LoadFile(FileChooser1.SelectedPath)
+  load.Close
+End
+
+Public Sub bLoadCANCEL_Click()
+  load.Close
+End
+
