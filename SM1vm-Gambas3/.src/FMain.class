@@ -8,16 +8,17 @@ Extern sm1_mem_put(addr As Integer, value As Integer, vm As Pointer) As Integer 
 Extern sm1_read_vm(var As String, vm As Pointer) As Integer Exec "read_vm"
 Extern sm1_write_vm(var As String, value As Integer, vm As Pointer) As Integer Exec "write_vm"
 Extern sm1_read_ds(addr As Integer, vm As Pointer) As Integer Exec "read_ds"
-Extern sm1_write_ds(addr As Integer, vm As Pointer) As Integer Exec "write_ds"
+Extern sm1_write_ds(addr As Integer, word As Integer, vm As Pointer) As Integer Exec "write_ds"
 Extern sm1_read_rs(addr As Integer, vm As Pointer) As Integer Exec "read_rs"
-Extern sm1_write_rs(addr As Integer, vm As Pointer) As Integer Exec "write_rs"
+Extern sm1_write_rs(addr As Integer, word As Integer, vm As Pointer) As Integer Exec "write_rs"
 Static Public vm As Pointer
 Static result As Integer
-
+Static loaded As Boolean
 
 Public Sub Form_Open()
   Dim n As Integer
   Dim m As Integer
+  loaded = False
   
   lMEM.text = "MEMORY"
   lDS.text = "DS"
@@ -46,6 +47,8 @@ Public Sub Form_Open()
   sm1_write_vm("t_ext", 0, vm)
   sm1_write_vm("n_ext", 0, vm)
   sm1_write_vm("status", 0, vm)
+  
+  ClearMemory
   
   tbPC.text = sm1_read_vm("pc", vm)
   tbT.text = sm1_read_vm("t", vm)
@@ -116,7 +119,18 @@ Public Sub Form_Open()
   Next
   tDP[0, 0].Background = Color.blue
   tRP[0, 0].Background = Color.blue
+
 End
+
+Public Sub ClearMemory()
+  Dim addr As Integer
+  For addr = 0 To 31
+   sm1_write_ds(addr, 0, vm)
+   sm1_write_rs(addr, 0, vm)
+  Next
+  
+End
+
 
 Public Sub LoadFile(file As String)
   Dim hFile As File
@@ -132,8 +146,11 @@ Public Sub LoadFile(file As String)
    If (addr > 16387) Then Break
   Wend
   MemColor
-  
+  RegistersRefresh
+  StacksRefresh
+  loaded = True
 End
+
 Public Sub MemColor()
   Dim r As Byte
   Dim g As Byte
@@ -143,7 +160,7 @@ Public Sub MemColor()
   Dim addr As Short
   Dim word As Short
   
-  b = 15
+  b = 128
   For n = 0 To 127
     For m = 0 To 127
       addr = (n * 128) + m
@@ -154,6 +171,32 @@ Public Sub MemColor()
     Next
   Next
 End
+
+Public Sub RegistersRefresh()
+  tbT.text = Hex$(sm1_read_vm("t", vm))
+  tbPC.text = Hex$(sm1_read_vm("pc", vm))
+  tbDP.text = Hex$(sm1_read_vm("dp", vm))
+  tbRP.text = Hex$(sm1_read_vm("rp", vm))
+  tbT_EXT.text = Hex$(sm1_read_vm("t_ext", vm))
+  tbN_EXT.text = Hex$(sm1_read_vm("n_ext", vm))
+  tbSTATUS.text = Hex$(sm1_read_vm("status", vm))
+End
+
+Public Sub StacksRefresh()
+  Dim n As Integer
+  
+  For n = 0 To 31
+    tDS[n, 0].text = Hex$(sm1_read_ds(n, vm))
+    tRP[n, 0].Background = Color.Background
+  Next
+  For n = 0 To 31
+    tRS[n, 0].text = Hex$(sm1_read_rs(n, vm))
+    tDP[n, 0].Background = Color.Background
+  Next
+  tRP[sm1_read_vm("rp", vm), 0].Background = Color.Blue
+  tDP[sm1_read_vm("dp", vm), 0].Background = Color.Blue
+End
+
 
 Public Sub bLoad_Click()
   load.Activate
@@ -168,3 +211,23 @@ Public Sub sbIRQ_Click()
   Endif
 End
 
+
+Public Sub bRESET_Click()
+  sm1_write_vm("pc", 0, vm)
+  sm1_write_vm("dp", 0, vm)
+  sm1_write_vm("rp", 0, vm)
+End
+
+Public Sub bStep_Click()
+  Dim word As Short
+  If loaded = False Then 
+    tbFILE.text = "LOAD FILE FIRST!!!"
+    Return
+  Endif
+  word = sm1_mem_get(sm1_read_vm("pc", vm), vm)
+  tbWORD.text = Hex$(word)
+  tbRESULT.text = Hex$(sm1_step(word, vm))
+  RegistersRefresh
+  StacksRefresh
+  MemColor
+End
