@@ -14,6 +14,7 @@ Extern sm1_write_rs(addr As Integer, word As Integer, vm As Pointer) As Integer 
 Static Public vm As Pointer
 Public LineCounter As Long = 1
 Public ret As Byte = 0
+Public stopBtn As Boolean = False
 Static result As Integer
 Static loaded As Boolean
 
@@ -63,6 +64,10 @@ Public Sub Form_Open()
   lPROGRAM.text = "PROGRAM"
   taPROGRAM.font.name = "Sans"
   taPROGRAM.font.size = 7
+  
+  bStop.Enabled = False
+  bStart.Enabled = False
+  bSTEP.enabled = False
   
   vm = sm1_init(16384, 32, 32)
   sm1_write_vm("pc", 0, vm)
@@ -171,6 +176,8 @@ Public Sub LoadFile(file As String)
   RegistersRefresh
   StacksRefresh
   loaded = True
+  bStart.Enabled = True
+  bSTEP.enabled = True
 End
 
 Public Sub MemColor()
@@ -434,8 +441,15 @@ Function RET_COND(ret As Integer) As String
 End
 
 Public Sub bStart_Click()
-While ret = 0
+bStop.Enabled = True
+While ret = 0 And stopBtn = False
   bStep_Click
   Wait 0.1
 Wend
+stopBtn = False
+bStop.Enabled = False
+End
+
+Public Sub bStop_Click()
+stopBtn = True
 End
