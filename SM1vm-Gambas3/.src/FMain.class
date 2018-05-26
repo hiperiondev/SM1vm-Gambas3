@@ -49,12 +49,15 @@ Public Sub Form_Open()
   tbRESULT.font.size = 7
   tbWORDstr.font.name = "Sans"
   tbWORDstr.font.size = 7
-  lDELTAR.text = "DELTA_R"
+  lDELTAR.text = "DltR"
+  lDELTAR.font.size = 7
   tbDELTAR.font.name = "Sans"
   tbDELTAR.font.size = 8
-  lDELTAD.text = "DELTA_D"
+  lDELTAD.text = "DltD"
+  lDELTAD.font.size = 7
   tbDELTAD.font.name = "Sans"
   tbDELTAD.font.size = 8
+  lFILE.text = "FILE"
   
   
   vm = sm1_init(16384, 32, 32)
@@ -316,9 +319,9 @@ Dim delta As String[] = ["0", "1", "-2", "-1"]
 Dim ADDR_LIT As Short
 
 If (word And OP_LIT) Then
-  tbADDR_LIT.text = ARG_LIT(word)
+  tbADDR_LIT.text = Hex$(CLong(ARG_LIT(word)) And &hffff&, 4)
 Else
-  tbADDR_LIT.text = ARG_OP(word)
+  tbADDR_LIT.text = Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
   Select Case OP_W(word)
     Case OP_JZ
       tbWORDstr.text = "OP_JZ"

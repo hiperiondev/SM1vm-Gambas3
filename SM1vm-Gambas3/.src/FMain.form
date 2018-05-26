@@ -1,11 +1,11 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,156,93)
+  MoveScaled(0,0,156,85)
   { Panel1 Panel
-    MoveScaled(0,0,156,92)
+    MoveScaled(0,0,156,85)
     { bLoad Button
-      MoveScaled(144,87,10,4)
+      MoveScaled(144,80,10,4)
     }
     { bStart Button
       MoveScaled(144,5,10,4)
@@ -53,14 +53,15 @@
       Alignment = Align.Center
     }
     { tbT TextBox
-      MoveScaled(23,5,7,2)
+      MoveScaled(23,5,8,3)
+      Alignment = Align.Center
     }
     { lPC Label
       MoveScaled(23,14,8,4)
       Alignment = Align.Center
     }
     { lT Label
-      MoveScaled(22,1,8,4)
+      MoveScaled(23,1,8,4)
       Alignment = Align.Center
     }
     { lDP Label
@@ -130,7 +131,7 @@
       AutoResize = False
     }
     { !tbFILE TextBox
-      MoveScaled(1,75,30,4)
+      MoveScaled(1,80,141,4)
       #Public = True
     }
     { sbIRQ SwitchButton
@@ -141,7 +142,7 @@
       Alignment = Align.Center
     }
     { bRESET Button
-      MoveScaled(144,83,10,4)
+      MoveScaled(144,75,10,4)
     }
     { cbUnderOverStack CheckBox
       MoveScaled(22,10,8,4)
@@ -171,20 +172,23 @@
       MoveScaled(143,65,10,4)
     }
     { tbDELTAR TextBox
-      MoveScaled(144,72,10,3)
+      MoveScaled(143,71,5,3)
       Alignment = Align.Center
     }
     { lDELTAR Label
-      MoveScaled(144,69,10,3)
+      MoveScaled(143,68,5,3)
       Alignment = Align.Center
     }
     { lDELTAD Label
-      MoveScaled(144,76,10,3)
+      MoveScaled(150,68,5,3)
       Alignment = Align.Center
     }
     { tbDELTAD TextBox
-      MoveScaled(144,79,10,3)
+      MoveScaled(150,71,5,3)
       Alignment = Align.Center
+    }
+    { lFILE Label
+      MoveScaled(1,76,24,4)
     }
   }
   { tRP TableView
