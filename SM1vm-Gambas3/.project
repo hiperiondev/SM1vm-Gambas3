@@ -1,4 +1,5 @@
 # Gambas Project File 3.0
+# Compiled with Gambas 3.10.0
 Title=pruebaLib
 Startup=FMain
 Version=0.0.1

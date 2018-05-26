@@ -40,7 +40,23 @@ Public Sub Form_Open()
   bRESET.text = "RESET"
   tbMEM.text = 0
   cbUnderOverStack.text = "SUO"
-    
+  cbT2N.text = "T2N"
+  cbT2R.text = "T2R"
+  cbN2T.text = "N2T"
+  cbR2P.text = "R2P"
+  lADDR_LIT.text = "ADDR/LIT"
+  tbRESULT.font.name = "Sans"
+  tbRESULT.font.size = 7
+  tbWORDstr.font.name = "Sans"
+  tbWORDstr.font.size = 7
+  lDELTAR.text = "DELTA_R"
+  tbDELTAR.font.name = "Sans"
+  tbDELTAR.font.size = 8
+  lDELTAD.text = "DELTA_D"
+  tbDELTAD.font.name = "Sans"
+  tbDELTAD.font.size = 8
+  
+  
   vm = sm1_init(16384, 32, 32)
   sm1_write_vm("pc", 0, vm)
   sm1_write_vm("dp", 0, vm)
@@ -234,21 +250,160 @@ Public Sub bStep_Click()
     Return
   Endif
   word = sm1_mem_get(sm1_read_vm("pc", vm), vm)
+  op(word)
   tbWORD.text = Hex$(CLong(word) And &hffff&, 4)
-  tbRESULT.text = Hex$(CLong(sm1_step(word, vm)) And &hffff&, 4)
+  tbRESULT.text = RET_COND(sm1_step(word, vm))
   RegistersRefresh
   StacksRefresh
   MemColor
 End
 
-Public Sub Panel1_MouseDown()
+Public Sub Op(word As Integer)
+'Operation types
+Dim OP_JMP As Short = &h0000&
+Dim OP_JZ As Short = &h2000&
+Dim OP_CALL As Short = &h4000&
+Dim OP_ALU As Short = &h6000&
+Dim OP_LIT As Short = &h8000&
 
-  
+'ALU flags
+Dim ALU_F_T2N As Byte = &h80&
+Dim ALU_F_T2R As Byte = &h40&
+Dim ALU_F_N2T As Byte = &h20&
+Dim ALU_F_R2P As Byte = &h10&
+
+' ALU operations
+Dim AluOP As String[] = [
+  "ALU_OP_T",
+  "ALU_OP_N",
+  "ALU_OP_R",
+  "ALU_OP_GET",
+  "ALU_OP_PUT",
+  "ALU_OP_DPLUS",
+  "ALU_OP_DMUL",
+  "ALU_OP_AND",
+  "ALU_OP_OR",
+  "ALU_OP_XOR",
+  "ALU_OP_NEG",
+  "ALU_OP_DEC",
+  "ALU_OP_EQ0",
+  "ALU_OP_EQ",
+  "ALU_OP_UCMP",
+  "ALU_OP_CMP",
+  "ALU_OP_RSHIFT",
+  "ALU_OP_LSHIFT",
+  "ALU_OP_SP",
+  "ALU_OP_RS",
+  "ALU_OP_SETSP",
+  "ALU_OP_SETRP",
+  "ALU_OP_ST",
+  "ALU_OP_TX",
+  "ALU_OP_RX",
+  "ALU_OP_UMOD",
+  "ALU_OP_MOD",
+  "ALU_OP_BYE",
+  "ALU_OP_SETST"]
+
+'Status Register
+Dim ST_SNDTN As Byte = &h01&
+Dim ST_RCVTN As Byte = &h02&
+Dim ST_RCVQT As Byte = &h04&
+Dim ST_IRQ As Byte = &h08&
+Dim ST_IMK As Byte = &h0f&
+
+Dim delta As String[] = ["0", "1", "-2", "-1"]
+
+Dim ADDR_LIT As Short
+
+If (word And OP_LIT) Then
+  tbADDR_LIT.text = ARG_LIT(word)
+Else
+  tbADDR_LIT.text = ARG_OP(word)
+  Select Case OP_W(word)
+    Case OP_JZ
+      tbWORDstr.text = "OP_JZ"
+    Case OP_JMP
+      tbWORDstr.text = "OP_JMP"
+    Case OP_CALL
+      tbWORDstr.text = "OP_CALL"
+    Case OP_ALU
+      tbWORDstr.text = AluOP[ALU_OP(word)]
+      If (word And ALU_F_R2P) Then
+        cbR2P.value = True
+      Else
+        cbR2P.value = False
+      Endif
+      If (word And ALU_F_N2T) Then
+        cbN2T.value = True
+      Else
+        cbN2T.value = False
+      Endif
+      If (word And ALU_F_T2R) Then
+        cbT2R.value = True
+      Else
+        cbT2R.value = False
+      Endif
+      If (word And ALU_F_T2N) Then
+        cbT2N.value = True
+      Else
+        cbT2N.value = False
+      Endif
+      tbDELTAR.text = delta[ALU_RS(word)]
+      tbDELTAD.text = delta[ALU_DS(word)]
+  End Select
+Endif
 
 End
 
-Public Sub tbT_EXT_KeyPress()
+Function OP_W(word As Short) As Short
+  Return word And &he000&
+End
 
-  
+Function ARG_OP(word As Short) As Short
+  Return word And &h1fff&
+End
 
+Function ARG_LIT(word As Short) As Short
+  Return word And &h7fff&
+End
+
+Function ALU_OP(word As Short) As Short
+  Return Lsr((word And &h1f00&), 8) 
+End
+
+Function ALU_DS(word As Byte) As Byte
+  Return word And &h03&
+End
+
+Function ALU_RS(word As Byte) As Byte
+  Return Lsr(word, 2) And &h03& 
+End
+
+Function RET_COND(ret As Integer) As String
+  Select Case ret
+    Case 0
+      Return "OK"
+    Case 1
+      Return "DS_UNDER"
+    Case 2
+      Return "DS_OVER"
+    Case 3
+      Return "RS_OVER"
+    Case 4
+      Return "RS_UNDER"
+    Case 5
+      Return "PC_OVER"
+    Case 6
+      Return "OP_UNKN"
+    Case 7
+      Return "ROM_WRITE"
+    Case 8
+      Return "MEM_OVER"
+    Case 254
+      Return "ERROR"
+    Case 255
+      Return "BYE"
+    Case Else
+      Return "???"
+  End Select
 End
