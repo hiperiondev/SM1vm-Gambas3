@@ -1,20 +1,20 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,156,85)
+  MoveScaled(0,0,190,85)
   { Panel1 Panel
-    MoveScaled(0,0,156,85)
+    MoveScaled(0,0,191,85)
     { bLoad Button
-      MoveScaled(144,80,10,4)
+      MoveScaled(179,80,10,4)
     }
     { bStart Button
-      MoveScaled(144,5,10,4)
+      MoveScaled(179,5,10,4)
     }
     { bStop Button
-      MoveScaled(144,10,10,4)
+      MoveScaled(179,10,10,4)
     }
     { bStep Button
-      MoveScaled(144,15,10,4)
+      MoveScaled(179,15,10,4)
     }
     { tDS TableView
       MoveScaled(13,5,7,69)
@@ -105,20 +105,20 @@
       Alignment = Align.Center
     }
     { lRESULT Label
-      MoveScaled(144,26,10,4)
+      MoveScaled(179,26,10,4)
       Alignment = Align.Center
     }
     { tbRESULT TextBox
-      MoveScaled(144,30,10,4)
+      MoveScaled(179,30,10,4)
       Alignment = Align.Center
       ReadOnly = True
     }
     { lWORD Label
-      MoveScaled(143,35,10,4)
+      MoveScaled(177,35,12,4)
       Alignment = Align.Center
     }
     { tbWORD TextBox
-      MoveScaled(143,39,12,4)
+      MoveScaled(177,39,12,4)
       Alignment = Align.Center
     }
     { tbMEM TextBox
@@ -135,60 +135,66 @@
       #Public = True
     }
     { sbIRQ SwitchButton
-      MoveScaled(144,22,10,4)
+      MoveScaled(179,22,10,4)
     }
     { lIRQ Label
-      MoveScaled(144,19,10,4)
+      MoveScaled(179,19,10,4)
       Alignment = Align.Center
     }
     { bRESET Button
-      MoveScaled(144,75,10,4)
+      MoveScaled(179,75,10,4)
     }
     { cbUnderOverStack CheckBox
       MoveScaled(22,10,8,4)
     }
     { tbWORDstr TextBox
-      MoveScaled(143,43,12,4)
+      MoveScaled(177,43,12,4)
       Alignment = Align.Center
     }
     { tbADDR_LIT TextBox
-      MoveScaled(144,52,10,4)
+      MoveScaled(178,52,10,4)
       Alignment = Align.Center
     }
     { lADDR_LIT Label
-      MoveScaled(144,48,10,4)
+      MoveScaled(178,48,10,4)
       Alignment = Align.Center
     }
     { cbT2N CheckBox
-      MoveScaled(143,56,10,4)
+      MoveScaled(178,56,10,4)
     }
     { cbT2R CheckBox
-      MoveScaled(143,59,11,4)
+      MoveScaled(178,59,11,4)
     }
     { cbN2T CheckBox
-      MoveScaled(143,62,10,4)
+      MoveScaled(178,62,10,4)
     }
     { cbR2P CheckBox
-      MoveScaled(143,65,10,4)
+      MoveScaled(178,65,10,4)
     }
     { tbDELTAR TextBox
-      MoveScaled(143,71,5,3)
+      MoveScaled(178,71,5,3)
       Alignment = Align.Center
     }
     { lDELTAR Label
-      MoveScaled(143,68,5,3)
+      MoveScaled(178,68,5,3)
       Alignment = Align.Center
     }
     { lDELTAD Label
-      MoveScaled(150,68,5,3)
+      MoveScaled(184,68,5,3)
       Alignment = Align.Center
     }
     { tbDELTAD TextBox
-      MoveScaled(150,71,5,3)
+      MoveScaled(184,71,5,3)
       Alignment = Align.Center
     }
     { lFILE Label
       MoveScaled(1,76,24,4)
+    }
+    { taPROGRAM TextArea
+      MoveScaled(143,5,33,79)
+    }
+    { lPROGRAM Label
+      MoveScaled(143,1,24,4)
     }
   }
   { tRP TableView
