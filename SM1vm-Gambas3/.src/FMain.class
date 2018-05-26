@@ -42,7 +42,6 @@ Public Sub Form_Open()
   bLOAD.text = "LOAD"
   bRESET.text = "RESET"
   tbMEM.text = 0
-  cbUnderOverStack.text = "SUO"
   cbT2N.text = "T2N"
   cbT2R.text = "T2R"
   cbN2T.text = "N2T"
@@ -64,6 +63,27 @@ Public Sub Form_Open()
   lPROGRAM.text = "PROGRAM"
   taPROGRAM.font.name = "Sans"
   taPROGRAM.font.size = 7
+  tbWORD.font.name = "Sans"
+  tbWORD.font.size = 8
+  tbADDR_LIT.font.name = "Sans"
+  tbADDR_LIT.font.size = 8
+  tbT.font.size = 8
+  tbPC.font.size = 8
+  tbDP.font.size = 8
+  tbRP.font.size = 8
+  tbT_EXT.font.size = 8
+  tbN_EXT.font.size = 8
+  tbSTATUS.font.size = 8
+  cbSNDTN.text = "SNDTN"
+  cbRCVTN.text = "RCVTN"
+  cbRCVQT.text = "RCVQT"
+  cbIRQ.text = "IRQ"
+  cbIMK.text = "IMK"
+  cbSNDTN.font.size = 7
+  cbRCVTN.font.size = 7
+  cbRCVQT.font.size = 7
+  cbIRQ.font.size = 7
+  cbIMK.font.size = 7
   
   bStop.Enabled = False
   bStart.Enabled = False
@@ -86,9 +106,7 @@ Public Sub Form_Open()
   tbT_EXT.text = sm1_read_vm("t_ext", vm)
   tbN_EXT.text = sm1_read_vm("n_ext", vm)
   tbSTATUS.text = sm1_read_vm("status", vm)
-  tbRESULT.text = result
   sbIRQ.Value = 0
-  tbWORD.text = "NULL"
 
   With tMEM
    .Columns.Count = 128
@@ -202,13 +220,34 @@ Public Sub MemColor()
 End
 
 Public Sub RegistersRefresh()
+  'Status Register
+  Dim ST_SNDTN As Byte = &h01&
+  Dim ST_RCVTN As Byte = &h02&
+  Dim ST_RCVQT As Byte = &h04&
+  Dim ST_IRQ As Byte = &h08&
+  Dim ST_IMK As Byte = &h0f&
+  Dim st As Byte
+  
+  cbSNDTN.value = False
+  cbRCVTN.value = False
+  cbRCVQT.value = False
+  cbIRQ.value = False
+  cbIMK.value = False
+  
   tbT.text = Hex$(CLong(sm1_read_vm("t", vm)) And &hffff&, 4)
   tbPC.text = Hex$(CLong(sm1_read_vm("pc", vm)) And &hffff&, 4)
   tbDP.text = Hex$(CLong(sm1_read_vm("dp", vm)) And &hffff&, 4)
   tbRP.text = Hex$(CLong(sm1_read_vm("rp", vm)) And &hffff&, 4)
   tbT_EXT.text = Hex$(CLong(sm1_read_vm("t_ext", vm)) And &hffff&, 4)
   tbN_EXT.text = Hex$(CLong(sm1_read_vm("n_ext", vm)) And &hffff&, 4)
-  tbSTATUS.text = Hex$(CLong(sm1_read_vm("status", vm)) And &hffff&, 4)
+  st = sm1_read_vm("status", vm)
+  tbSTATUS.text = Hex$(CLong(st) And &hffff&, 4)
+  
+  If st And ST_SNDTN Then cbSNDTN.value = True
+  If st And ST_RCVTN Then cbRCVTN.value = True
+  If st And ST_RCVQT Then cbRCVQT.value = True
+  If st And ST_IRQ Then cbIRQ.value = True
+  If st And ST_IMK Then cbIMK.value = True
 End
 
 Public Sub StacksRefresh()
@@ -227,52 +266,12 @@ Public Sub StacksRefresh()
   rp = sm1_read_vm("rp", vm)
   dp = sm1_read_vm("dp", vm)
   If (dp < 0 Or dp > 31 Or rp < 0 Or rp > 31) Then
-    cbUnderOverStack.value = True
-    cbUnderOverStack.Background = Color.Red
+    'Under/Over
   Else
     tRP[rp, 0].Background = Color.Blue
     tDP[dp, 0].Background = Color.Blue
   Endif
   
-End
-
-
-Public Sub bLoad_Click()
-  load.Activate
-  load.Raise
-End
-
-Public Sub sbIRQ_Click()
-  If (sbIRQ.Value = True) Then 
-    sbIRQ.Background = Color.Red
-  Else
-    sbIRQ.Background = Color.Green
-  Endif
-End
-
-
-Public Sub bRESET_Click()
-  sm1_write_vm("pc", 0, vm)
-  sm1_write_vm("dp", 0, vm)
-  sm1_write_vm("rp", 0, vm)
-  RegistersRefresh
-End
-
-Public Sub bStep_Click()
-  Dim word As Short
-  
-  If loaded = False Then 
-    tbFILE.text = "LOAD FILE FIRST!!!"
-    Return
-  Endif
-  word = sm1_mem_get(sm1_read_vm("pc", vm), vm)
-  tbWORD.text = Hex$(CLong(word) And &hffff&, 4)
-  ret = sm1_step(word, vm)
-  tbRESULT.text = RET_COND(ret)
-  op(word, ret)
-  RegistersRefresh
-  StacksRefresh
-  MemColor
 End
 
 Public Sub Op(word As Integer, ret As Byte)
@@ -320,13 +319,6 @@ Dim AluOP As String[] = [
   "ALU_OP_MOD",
   "ALU_OP_BYE",
   "ALU_OP_SETST"]
-
-'Status Register
-Dim ST_SNDTN As Byte = &h01&
-Dim ST_RCVTN As Byte = &h02&
-Dim ST_RCVQT As Byte = &h04&
-Dim ST_IRQ As Byte = &h08&
-Dim ST_IMK As Byte = &h0f&
 
 Dim delta As String[] = ["0", "1", "-2", "-1"]
 
@@ -438,6 +430,46 @@ Function RET_COND(ret As Integer) As String
     Case Else
       Return "???"
   End Select
+End
+
+' /////////////////////////////////////////////////////////////////////////
+
+Public Sub bLoad_Click()
+  load.Activate
+  load.Raise
+End
+
+Public Sub sbIRQ_Click()
+  If (sbIRQ.Value = True) Then 
+    sbIRQ.Background = Color.Red
+  Else
+    sbIRQ.Background = Color.Green
+  Endif
+End
+
+
+Public Sub bRESET_Click()
+  sm1_write_vm("pc", 0, vm)
+  sm1_write_vm("dp", 0, vm)
+  sm1_write_vm("rp", 0, vm)
+  RegistersRefresh
+End
+
+Public Sub bStep_Click()
+  Dim word As Short
+  
+  If loaded = False Then 
+    tbFILE.text = "LOAD FILE FIRST!!!"
+    Return
+  Endif
+  word = sm1_mem_get(sm1_read_vm("pc", vm), vm)
+  tbWORD.text = Hex$(CLong(word) And &hffff&, 4)
+  ret = sm1_step(word, vm)
+  tbRESULT.text = RET_COND(ret)
+  op(word, ret)
+  RegistersRefresh
+  StacksRefresh
+  MemColor
 End
 
 Public Sub bStart_Click()
