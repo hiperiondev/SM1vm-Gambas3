@@ -13,6 +13,7 @@ Extern sm1_read_rs(addr As Integer, vm As Pointer) As Integer Exec "read_rs"
 Extern sm1_write_rs(addr As Integer, word As Integer, vm As Pointer) As Integer Exec "write_rs"
 Static Public vm As Pointer
 Public LineCounter As Long = 1
+Public ret As Byte = 0
 Static result As Integer
 Static loaded As Boolean
 
@@ -252,7 +253,6 @@ End
 
 Public Sub bStep_Click()
   Dim word As Short
-  Dim ret As Byte
   
   If loaded = False Then 
     tbFILE.text = "LOAD FILE FIRST!!!"
@@ -331,22 +331,22 @@ Else
 Endif
 If (word And OP_LIT) Then
   tbADDR_LIT.text = Hex$(CLong(ARG_LIT(word)) And &hffff&, 4)
-  taPROGRAM.text = taPROGRAM.text & Hex$(LineCounter, 4) & " OP_LIT " & Hex$(CLong(ARG_LIT(word)) And &hffff&, 4)
+  taPROGRAM.text &= Hex$(LineCounter, 4) & " OP_LIT " & Hex$(CLong(ARG_LIT(word)) And &hffff&, 4)
 Else
   tbADDR_LIT.text = Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
   Select Case OP_W(word)
     Case OP_JZ
       tbWORDstr.text = "OP_JZ"
-      taPROGRAM.text = taPROGRAM.text & Hex$(LineCounter, 4) & " OP_JZ " & Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
+      taPROGRAM.text &= Hex$(LineCounter, 4) & " OP_JZ " & Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
     Case OP_JMP
       tbWORDstr.text = "OP_JMP"
-      taPROGRAM.text = taPROGRAM.text & Hex$(LineCounter, 4) & " OP_JMP " & Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
+      taPROGRAM.text &= Hex$(LineCounter, 4) & " OP_JMP " & Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
     Case OP_CALL
       tbWORDstr.text = "OP_CALL"
-      taPROGRAM.text = taPROGRAM.text & Hex$(LineCounter, 4) & " OP_CALL " & Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
+      taPROGRAM.text &= Hex$(LineCounter, 4) & " OP_CALL " & Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
     Case OP_ALU
       tbWORDstr.text = AluOP[ALU_OP(word)]
-      taPROGRAM.text = taPROGRAM.text & Hex$(LineCounter, 4) & " " & AluOP[ALU_OP(word)] & " ("
+      taPROGRAM.text &= Hex$(LineCounter, 4) & " " & AluOP[ALU_OP(word)] & " ("
       If (word And ALU_F_R2P) Then
         cbR2P.value = True
         taPROGRAM.text = taPROGRAM.text & "R2P "
@@ -373,7 +373,7 @@ Else
       Endif
       tbDELTAR.text = delta[ALU_RS(word)]
       tbDELTAD.text = delta[ALU_DS(word)]
-      taPROGRAM.text = taPROGRAM.text & "RP:" & delta[ALU_RS(word)] & " DP:" & delta[ALU_DS(word)] & ")"
+      taPROGRAM.text &= "RP:" & delta[ALU_RS(word)] & " DP:" & delta[ALU_DS(word)] & ")"
   End Select
 Endif
 taPROGRAM.text = taPROGRAM.text & "\n"
@@ -431,4 +431,11 @@ Function RET_COND(ret As Integer) As String
     Case Else
       Return "???"
   End Select
+End
+
+Public Sub bStart_Click()
+While ret = 0
+  bStep_Click
+  Wait 0.1
+Wend
 End
