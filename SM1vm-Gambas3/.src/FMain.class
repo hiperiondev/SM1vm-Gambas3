@@ -61,7 +61,7 @@ Public Sub Form_Open()
   lFILE.text = "FILE"
   lPROGRAM.text = "PROGRAM"
   taPROGRAM.font.name = "Sans"
-  taPROGRAM.font.size = 8
+  taPROGRAM.font.size = 7
   
   vm = sm1_init(16384, 32, 32)
   sm1_write_vm("pc", 0, vm)
@@ -247,24 +247,28 @@ Public Sub bRESET_Click()
   sm1_write_vm("pc", 0, vm)
   sm1_write_vm("dp", 0, vm)
   sm1_write_vm("rp", 0, vm)
+  RegistersRefresh
 End
 
 Public Sub bStep_Click()
   Dim word As Short
+  Dim ret As Byte
+  
   If loaded = False Then 
     tbFILE.text = "LOAD FILE FIRST!!!"
     Return
   Endif
   word = sm1_mem_get(sm1_read_vm("pc", vm), vm)
-  op(word)
   tbWORD.text = Hex$(CLong(word) And &hffff&, 4)
-  tbRESULT.text = RET_COND(sm1_step(word, vm))
+  ret = sm1_step(word, vm)
+  tbRESULT.text = RET_COND(ret)
+  op(word, ret)
   RegistersRefresh
   StacksRefresh
   MemColor
 End
 
-Public Sub Op(word As Integer)
+Public Sub Op(word As Integer, ret As Byte)
 'Operation types
 Dim OP_JMP As Short = &h0000&
 Dim OP_JZ As Short = &h2000&
@@ -320,7 +324,11 @@ Dim ST_IMK As Byte = &h0f&
 Dim delta As String[] = ["0", "1", "-2", "-1"]
 
 Dim ADDR_LIT As Short
-
+If ret <> 0 Then
+  taPROGRAM.text &= "[!]"
+Else
+  taPROGRAM.text &= "   "
+Endif
 If (word And OP_LIT) Then
   tbADDR_LIT.text = Hex$(CLong(ARG_LIT(word)) And &hffff&, 4)
   taPROGRAM.text = taPROGRAM.text & Hex$(LineCounter, 4) & " OP_LIT " & Hex$(CLong(ARG_LIT(word)) And &hffff&, 4)
@@ -338,7 +346,7 @@ Else
       taPROGRAM.text = taPROGRAM.text & Hex$(LineCounter, 4) & " OP_CALL " & Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
     Case OP_ALU
       tbWORDstr.text = AluOP[ALU_OP(word)]
-      taPROGRAM.text = taPROGRAM.text & Hex$(LineCounter, 4) & " " & AluOP[ALU_OP(word)] & "("
+      taPROGRAM.text = taPROGRAM.text & Hex$(LineCounter, 4) & " " & AluOP[ALU_OP(word)] & " ("
       If (word And ALU_F_R2P) Then
         cbR2P.value = True
         taPROGRAM.text = taPROGRAM.text & "R2P "
