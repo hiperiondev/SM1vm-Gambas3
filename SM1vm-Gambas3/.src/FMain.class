@@ -84,6 +84,8 @@ Public Sub Form_Open()
   cbRCVQT.font.size = 7
   cbIRQ.font.size = 7
   cbIMK.font.size = 7
+  tbFILE.font.size = 7
+  tbMEM.font.size = 7
   
   bStop.Enabled = False
   bStart.Enabled = False
