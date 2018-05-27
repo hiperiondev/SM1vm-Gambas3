@@ -17,12 +17,29 @@ Public ret As Byte = 0
 Public stopBtn As Boolean = False
 Static result As Integer
 Static loaded As Boolean
+'Status flags
+Const ST_SNDTN As Byte = &h01&
+Const ST_RCVTN As Byte = &h02&
+Const ST_RCVQT As Byte = &h04&
+Const ST_IRQ As Byte = &h08&
+Const ST_IMK As Byte = &h10&
+'Operation types
+Const OP_JMP As Short = &h0000&
+Const OP_JZ As Short = &h2000&
+Const OP_CALL As Short = &h4000&
+Const OP_ALU As Short = &h6000&
+Const OP_LIT As Long = &h8000&
+'ALU flags
+Const ALU_F_T2N As Byte = &h80&
+Const ALU_F_T2R As Byte = &h40&
+Const ALU_F_N2T As Byte = &h20&
+Const ALU_F_R2P As Byte = &h10&
 
 Public Sub Form_Open()
   Dim n As Integer
   Dim m As Integer
   loaded = False
-  
+
   lMEM.text = "MEMORY"
   lDS.text = "DS"
   lRS.text = "RS"
@@ -86,7 +103,7 @@ Public Sub Form_Open()
   cbIMK.font.size = 7
   tbFILE.font.size = 7
   tbMEM.font.size = 7
-  
+  taTERMINAL.font.size = 8
   bStop.Enabled = False
   bStart.Enabled = False
   bSTEP.enabled = False
@@ -222,19 +239,7 @@ Public Sub MemColor()
 End
 
 Public Sub RegistersRefresh()
-  'Status Register
-  Dim ST_SNDTN As Byte = &h01&
-  Dim ST_RCVTN As Byte = &h02&
-  Dim ST_RCVQT As Byte = &h04&
-  Dim ST_IRQ As Byte = &h08&
-  Dim ST_IMK As Byte = &h0f&
   Dim st As Byte
-  
-  cbSNDTN.value = False
-  cbRCVTN.value = False
-  cbRCVQT.value = False
-  cbIRQ.value = False
-  cbIMK.value = False
   
   tbT.text = Hex$(CLong(sm1_read_vm("t", vm)) And &hffff&, 4)
   tbPC.text = Hex$(CLong(sm1_read_vm("pc", vm)) And &hffff&, 4)
@@ -242,14 +247,33 @@ Public Sub RegistersRefresh()
   tbRP.text = Hex$(CLong(sm1_read_vm("rp", vm)) And &hffff&, 4)
   tbT_EXT.text = Hex$(CLong(sm1_read_vm("t_ext", vm)) And &hffff&, 4)
   tbN_EXT.text = Hex$(CLong(sm1_read_vm("n_ext", vm)) And &hffff&, 4)
-  st = sm1_read_vm("status", vm)
+  st = CByte(sm1_read_vm("status", vm))
   tbSTATUS.text = Hex$(CLong(st) And &hffff&, 4)
   
-  If st And ST_SNDTN Then cbSNDTN.value = True
-  If st And ST_RCVTN Then cbRCVTN.value = True
-  If st And ST_RCVQT Then cbRCVQT.value = True
-  If st And ST_IRQ Then cbIRQ.value = True
-  If st And ST_IMK Then cbIMK.value = True
+  If st And ST_SNDTN Then 
+    cbSNDTN.value = True
+    taTERMINAL &= Chr$(sm1_read_vm("t_ext", vm))
+  End If
+  If st And ST_RCVTN Then
+   cbRCVTN.value = True
+  Else
+   cbRCVTN.value = False
+  End If
+  If st And ST_RCVQT Then
+   cbRCVQT.value = True
+  Else
+   cbRCVQT.value = False
+  End If
+  If st And ST_IRQ Then
+   cbIRQ.value = True
+  Else
+   cbIRQ.value = False
+  End If
+  If st And ST_IMK Then
+   cbIMK.value = True
+  Else
+   cbIMK.value = False
+  End If
 End
 
 Public Sub StacksRefresh()
@@ -277,19 +301,6 @@ Public Sub StacksRefresh()
 End
 
 Public Sub Op(word As Integer, ret As Byte)
-'Operation types
-Dim OP_JMP As Short = &h0000&
-Dim OP_JZ As Short = &h2000&
-Dim OP_CALL As Short = &h4000&
-Dim OP_ALU As Short = &h6000&
-Dim OP_LIT As Short = &h8000&
-
-'ALU flags
-Dim ALU_F_T2N As Byte = &h80&
-Dim ALU_F_T2R As Byte = &h40&
-Dim ALU_F_N2T As Byte = &h20&
-Dim ALU_F_R2P As Byte = &h10&
-
 ' ALU operations
 Dim AluOP As String[] = [
   "ALU_OP_T",
@@ -322,7 +333,7 @@ Dim AluOP As String[] = [
   "ALU_OP_BYE",
   "ALU_OP_SETST"]
 
-Dim delta As String[] = ["0", "1", "-2", "-1"]
+Dim delta As Short[] = ["0", "1", "-2", "-1"]
 
 Dim ADDR_LIT As Short
 If ret <> 0 Then
@@ -434,7 +445,7 @@ Function RET_COND(ret As Integer) As String
   End Select
 End
 
-' /////////////////////////////////////////////////////////////////////////
+'/////////////////////////////////////////////////////////////////////////
 
 Public Sub bLoad_Click()
   load.Activate
@@ -486,4 +497,15 @@ End
 
 Public Sub bStop_Click()
 stopBtn = True
+End
+
+Public Sub taTERMINAL_KeyPress()
+  cbRCVTN.value = True
+  sm1_write_vm("t_ext", Asc(Key.Text), vm)
+  Print CByte(sm1_read_vm("status", vm))
+  Print ST_RCVTN
+  Print CByte(sm1_read_vm("status", vm)) Or ST_RCVTN
+  sm1_write_vm("status", CByte(sm1_read_vm("status", vm)) Or ST_RCVTN, vm)
+  
+  
 End

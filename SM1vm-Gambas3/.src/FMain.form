@@ -1,9 +1,9 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,194,85)
+  MoveScaled(0,0,194,100)
   { Panel1 Panel
-    MoveScaled(0,0,194,85)
+    MoveScaled(0,0,194,100)
     { bLoad Button
       MoveScaled(181,80,11,4)
     }
@@ -214,5 +214,8 @@
     MoveScaled(1,5,2,69)
     ScrollBar = Scroll.None
     AutoResize = False
+  }
+  { taTERMINAL TextArea
+    MoveScaled(1,85,178,14)
   }
 }
