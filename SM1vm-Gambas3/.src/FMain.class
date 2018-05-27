@@ -20,7 +20,7 @@ Public ret As Byte = 0
 Public mRP As Integer = 0
 Public mDP As Integer = 0
 Public stopBtn As Boolean = False
-Static result As Integer
+'Static result As Integer
 Static loaded As Boolean
 'Delta
 Public delta As Short[] = [0, 1, -2, -1]

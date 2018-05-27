@@ -48,7 +48,7 @@
       AutoResize = False
     }
     { !tbPC TextBox
-      MoveScaled(23,13,7,4)
+      MoveScaled(23,12,7,4)
       #Public = True
       Alignment = Align.Center
     }
@@ -61,43 +61,43 @@
       Alignment = Align.Center
     }
     { lT Label
-      MoveScaled(23,1,7,4)
+      MoveScaled(23,2,7,4)
       Alignment = Align.Center
     }
     { lDP Label
-      MoveScaled(23,17,7,4)
+      MoveScaled(23,16,7,4)
       Alignment = Align.Center
     }
     { tbDP TextBox
-      MoveScaled(23,21,7,4)
+      MoveScaled(23,19,7,4)
       Alignment = Align.Center
     }
     { lRP Label
-      MoveScaled(23,25,7,4)
+      MoveScaled(23,27,7,4)
       Alignment = Align.Center
     }
     { tbRP TextBox
-      MoveScaled(23,29,7,4)
+      MoveScaled(23,30,7,4)
       Alignment = Align.Center
     }
     { lT_EXT Label
-      MoveScaled(23,33,7,4)
+      MoveScaled(23,38,7,4)
       Alignment = Align.Center
     }
     { tbT_EXT TextBox
-      MoveScaled(23,37,7,4)
-      Alignment = Align.Center
-    }
-    { lN_EXT Label
       MoveScaled(23,41,7,4)
       Alignment = Align.Center
     }
-    { tbN_EXT TextBox
+    { lN_EXT Label
       MoveScaled(23,45,7,4)
       Alignment = Align.Center
     }
+    { tbN_EXT TextBox
+      MoveScaled(23,48,7,4)
+      Alignment = Align.Center
+    }
     { lSTATUS Label
-      MoveScaled(23,51,7,4)
+      MoveScaled(23,52,7,4)
       Alignment = Align.Center
     }
     { tbSTATUS TextBox
@@ -105,7 +105,7 @@
       Alignment = Align.Center
     }
     { lRESULT Label
-      MoveScaled(180,26,12,4)
+      MoveScaled(180,27,12,4)
       Alignment = Align.Center
     }
     { tbRESULT TextBox
@@ -114,7 +114,7 @@
       ReadOnly = True
     }
     { lWORD Label
-      MoveScaled(182,34,9,4)
+      MoveScaled(182,35,9,4)
       Alignment = Align.Center
     }
     { tbWORD TextBox
@@ -123,6 +123,7 @@
     }
     { tbMEM TextBox
       MoveScaled(42,1,10,4)
+      Visible = False
       Alignment = Align.Center
     }
     { tDP TableView
@@ -153,7 +154,7 @@
       Alignment = Align.Center
     }
     { lADDR_LIT Label
-      MoveScaled(180,46,13,4)
+      MoveScaled(180,47,13,4)
       Alignment = Align.Center
     }
     { cbT2N CheckBox
@@ -173,11 +174,11 @@
       Alignment = Align.Center
     }
     { lDELTAR Label
-      MoveScaled(181,66,4,3)
+      MoveScaled(181,67,4,3)
       Alignment = Align.Center
     }
     { lDELTAD Label
-      MoveScaled(188,66,4,3)
+      MoveScaled(188,67,4,3)
       Alignment = Align.Center
     }
     { tbDELTAD TextBox
@@ -210,18 +211,18 @@
       MoveScaled(22,71,9,4)
     }
     { tbMaxDP TextBox
-      MoveScaled(1,74,6,4)
+      MoveScaled(23,23,5,4)
       Alignment = Align.Center
     }
     { tbMaxRP TextBox
-      MoveScaled(16,74,6,4)
+      MoveScaled(23,34,5,4)
       Alignment = Align.Center
     }
     { lMaxRP Label
-      MoveScaled(13,74,3,4)
+      MoveScaled(28,34,3,4)
     }
     { lMaxDP Label
-      MoveScaled(7,74,4,4)
+      MoveScaled(28,23,4,4)
     }
   }
   { tRP TableView
