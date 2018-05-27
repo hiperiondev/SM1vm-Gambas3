@@ -1,6 +1,9 @@
 ' Gambas class file
 
+' !!!!!!! Change !!!!!!!!!!!!
 Library "/opt/Hiperion/Desarrollos/workspace_SM1/SM1lib/Release/libSM1lib"
+' !!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 Extern sm1_init(ramSize As Integer, rsSize As Integer, dsSize As Integer) As Pointer Exec "init"
 Extern sm1_step(word As Integer, vm As Pointer) As Integer Exec "step"
 Extern sm1_mem_get(addr As Integer, vm As Pointer) As Integer Exec "mem_get"
@@ -14,9 +17,13 @@ Extern sm1_write_rs(addr As Integer, word As Integer, vm As Pointer) As Integer 
 Static Public vm As Pointer
 Public LineCounter As Long = 1
 Public ret As Byte = 0
+Public mRP As Integer = 0
+Public mDP As Integer = 0
 Public stopBtn As Boolean = False
 Static result As Integer
 Static loaded As Boolean
+'Delta
+Public delta As Short[] = [0, 1, -2, -1]
 'Status flags
 Const ST_SNDTN As Byte = &h01&
 Const ST_RCVTN As Byte = &h02&
@@ -34,6 +41,7 @@ Const ALU_F_T2N As Byte = &h80&
 Const ALU_F_T2R As Byte = &h40&
 Const ALU_F_N2T As Byte = &h20&
 Const ALU_F_R2P As Byte = &h10&
+
 
 Public Sub Form_Open()
   Dim n As Integer
@@ -107,6 +115,12 @@ Public Sub Form_Open()
   bStop.Enabled = False
   bStart.Enabled = False
   bSTEP.enabled = False
+  lMaxDP.font.size = 7
+  tbMaxDP.font.size = 7
+  lMaxRP.font.size = 7
+  tbMaxRP.font.size = 7
+  lMaxDP.text = "mDP"
+  lMaxRP.text = "mRP"
   
   vm = sm1_init(16384, 32, 32)
   sm1_write_vm("pc", 0, vm)
@@ -195,7 +209,6 @@ Public Sub ClearMemory()
   Next
 End
 
-
 Public Sub LoadFile(file As String)
   Dim hFile As File
   Dim word As Short
@@ -240,15 +253,24 @@ End
 
 Public Sub RegistersRefresh()
   Dim st As Byte
+  Dim DP As Integer
+  Dim RP As Integer
   
   tbT.text = Hex$(CLong(sm1_read_vm("t", vm)) And &hffff&, 4)
   tbPC.text = Hex$(CLong(sm1_read_vm("pc", vm)) And &hffff&, 4)
-  tbDP.text = Hex$(CLong(sm1_read_vm("dp", vm)) And &hffff&, 4)
-  tbRP.text = Hex$(CLong(sm1_read_vm("rp", vm)) And &hffff&, 4)
+  DP = sm1_read_vm("dp", vm)
+  tbDP.text = Hex$(CLong(DP) And &hffff&, 4)
+  RP = sm1_read_vm("rp", vm)
+  tbRP.text = Hex$(CLong(RP) And &hffff&, 4)
   tbT_EXT.text = Hex$(CLong(sm1_read_vm("t_ext", vm)) And &hffff&, 4)
   tbN_EXT.text = Hex$(CLong(sm1_read_vm("n_ext", vm)) And &hffff&, 4)
   st = CByte(sm1_read_vm("status", vm))
   tbSTATUS.text = Hex$(CLong(st) And &hffff&, 4)
+  
+  If mRP < RP Then mRP = RP
+  If mDP < DP Then mDP = DP
+  tbMaxDP.text = mDP
+  tbMaxRP.text = mRP
   
   If st And ST_SNDTN Then 
     cbSNDTN.value = True
@@ -300,7 +322,7 @@ Public Sub StacksRefresh()
   
 End
 
-Public Sub Op(word As Integer, ret As Byte)
+Public Sub Op(word As Integer)
 ' ALU operations
 Dim AluOP As String[] = [
   "ALU_OP_T",
@@ -333,9 +355,6 @@ Dim AluOP As String[] = [
   "ALU_OP_BYE",
   "ALU_OP_SETST"]
 
-Dim delta As Short[] = ["0", "1", "-2", "-1"]
-
-Dim ADDR_LIT As Short
 If ret <> 0 Then
   taPROGRAM.text &= "[!]"
 Else
@@ -416,7 +435,7 @@ Function ALU_RS(word As Byte) As Byte
   Return Lsr(word, 2) And &h03& 
 End
 
-Function RET_COND(ret As Integer) As String
+Function RET_COND() As String
   Select Case ret
     Case 0
       Return "OK"
@@ -478,8 +497,8 @@ Public Sub bStep_Click()
   word = sm1_mem_get(sm1_read_vm("pc", vm), vm)
   tbWORD.text = Hex$(CLong(word) And &hffff&, 4)
   ret = sm1_step(word, vm)
-  tbRESULT.text = RET_COND(ret)
-  op(word, ret)
+  tbRESULT.text = RET_COND()
+  op(word)
   RegistersRefresh
   StacksRefresh
   MemColor
@@ -500,12 +519,6 @@ stopBtn = True
 End
 
 Public Sub taTERMINAL_KeyPress()
-  cbRCVTN.value = True
   sm1_write_vm("t_ext", Asc(Key.Text), vm)
-  Print CByte(sm1_read_vm("status", vm))
-  Print ST_RCVTN
-  Print CByte(sm1_read_vm("status", vm)) Or ST_RCVTN
   sm1_write_vm("status", CByte(sm1_read_vm("status", vm)) Or ST_RCVTN, vm)
-  
-  
 End

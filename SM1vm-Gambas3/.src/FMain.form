@@ -32,15 +32,15 @@
       AutoResize = False
     }
     { lDS Label
-      MoveScaled(13,1,7,4)
+      MoveScaled(13,2,7,4)
       Alignment = Align.Center
     }
     { lRS Label
-      MoveScaled(3,1,7,4)
+      MoveScaled(3,2,7,4)
       Alignment = Align.Center
     }
     { lMEM Label
-      MoveScaled(32,1,24,4)
+      MoveScaled(32,2,24,4)
     }
     { tSPOS TableView
       MoveScaled(10,5,3,69)
@@ -131,7 +131,7 @@
       AutoResize = False
     }
     { !tbFILE TextBox
-      MoveScaled(1,80,141,4)
+      MoveScaled(1,81,141,4)
       #Public = True
     }
     { sbIRQ SwitchButton
@@ -185,14 +185,14 @@
       Alignment = Align.Center
     }
     { lFILE Label
-      MoveScaled(1,76,24,4)
+      MoveScaled(1,78,7,4)
     }
     { taPROGRAM TextArea
-      MoveScaled(143,5,36,79)
+      MoveScaled(143,5,36,80)
       ReadOnly = True
     }
     { lPROGRAM Label
-      MoveScaled(143,1,24,4)
+      MoveScaled(143,2,24,4)
     }
     { cbSNDTN CheckBox
       MoveScaled(22,59,9,4)
@@ -209,6 +209,20 @@
     { cbIMK CheckBox
       MoveScaled(22,71,9,4)
     }
+    { tbMaxDP TextBox
+      MoveScaled(1,74,6,4)
+      Alignment = Align.Center
+    }
+    { tbMaxRP TextBox
+      MoveScaled(16,74,6,4)
+      Alignment = Align.Center
+    }
+    { lMaxRP Label
+      MoveScaled(13,74,3,4)
+    }
+    { lMaxDP Label
+      MoveScaled(7,74,4,4)
+    }
   }
   { tRP TableView
     MoveScaled(1,5,2,69)
@@ -216,6 +230,6 @@
     AutoResize = False
   }
   { taTERMINAL TextArea
-    MoveScaled(1,85,178,14)
+    MoveScaled(1,86,178,13)
   }
 }
