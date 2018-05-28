@@ -50,7 +50,8 @@ Public Sub Form_Open()
   Dim n As Integer
   Dim m As Integer
   loaded = False
-
+  
+  FMain.Title = "SM1 GUI"
   lMEM.text = "MEMORY"
   lDS.text = "DS"
   lRS.text = "RS"
@@ -210,10 +211,16 @@ End
 
 Public Sub ClearMemory()
   Dim addr As Integer
-  For addr = 0 To 31
-   sm1_write_ds(addr, 0, vm)
+  For addr = 0 To Val(tbrsSize.text) - 1
    sm1_write_rs(addr, 0, vm)
   Next
+  For addr = 0 To Val(tbdsSize.text) - 1 
+   sm1_write_ds(addr, 0, vm)
+  Next
+  For addr = 0 To Val(tbramSize.text) - 1
+    sm1_mem_put(addr, 0, vm)
+  Next
+  
 End
 
 Public Sub LoadFile()
@@ -577,7 +584,7 @@ cbLOGMEM.Enabled = False
 bStop.Enabled = True
 While ret = 0 And stopBtn = False
   bStep_Click
-  Wait 0.1
+  Wait 0.01
 Wend
 stopBtn = False
 bStop.Enabled = False

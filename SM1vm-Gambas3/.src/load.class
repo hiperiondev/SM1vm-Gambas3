@@ -1,8 +1,7 @@
 ' Gambas class file
 
-
-
 Public Sub Form_Open()
+  Me.Title = "SM1 Load File"
   bLoadACCEPT.text = "ACCEPT"
   bLoadCANCEL.text = "CANCEL"
 End
