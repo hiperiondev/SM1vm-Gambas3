@@ -120,7 +120,7 @@ int write_rs(int addr, int value, vm_t *vm ){
 
 vm_t* init(int ramSize, int rsSize, int dsSize) {
         vm_t *vm     = (vm_t *)     malloc(sizeof(vm_t));
-        vm->RAM      = (uint16_t *) malloc(sizeof(uint8_t)  * ramSize);
+        vm->RAM      = (uint16_t *) malloc(sizeof(uint16_t) * ramSize);
         vm->rs       = (uint16_t *) malloc(sizeof(uint16_t) * rsSize);
         vm->ds       = (uint16_t *) malloc(sizeof(uint16_t) * dsSize);
 #ifdef UNDER_OVER
