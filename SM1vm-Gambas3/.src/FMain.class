@@ -34,9 +34,6 @@ Const ALU_F_T2R As Byte = &h40&
 Const ALU_F_N2T As Byte = &h20&
 Const ALU_F_R2P As Byte = &h10&
 
-Const dsSize As Byte = 32
-Const rsSize As Byte = 32
-Const ramSize As Long = 32768
 '///////////////////////////////////////////
 
 Public LineCounter As Long = 1
@@ -133,16 +130,23 @@ Public Sub Form_Open()
   cbLOGSTK.text = "LOGSTK"
   cbLOGMEM.font.size = 8
   cbLOGMEM.text = "LOGMEM"
+  lramSize.text = "ram"
+  lrsSize.text = "rsSize"
+  ldsSize.text = "dsSize"
+  lramSize.font.size = 7
+  lrsSize.font.size = 7
+  ldsSize.font.size = 7
+  tbramSize.font.size = 7
+  tbrsSize.font.size = 7
+  tbdsSize.font.size = 7
+  tbramSize.text = 32768
+  tbrsSize.text = 32
+  tbdsSize.text = 32
   
-  vm = sm1_init(ramSize, rsSize, dsSize)
-  sm1_write_vm("pc", 0, vm)
-  sm1_write_vm("dp", 0, vm)
-  sm1_write_vm("rp", 0, vm)
-  sm1_write_vm("t_ext", 0, vm)
-  sm1_write_vm("n_ext", 0, vm)
-  sm1_write_vm("status", 0, vm)
-  
-  ClearMemory
+  cbLOGPRG.Enabled = False
+  cbLOGSTK.enabled = False
+  cbLOGMEM.enabled = False
+
 
   With tMEM
    .Columns.Count = 128
@@ -216,14 +220,25 @@ Public Sub LoadFile()
   Dim hFile As File
   Dim word As Long
   Dim addr As Long
+  tbramSize.Enabled = False
+  tbrsSize.Enabled = False
+  tbdsSize.Enabled = False
+  
+  vm = sm1_init(Val(tbramSize.text), Val(tbrsSize.text), Val(tbdsSize.text))
+  sm1_write_vm("pc", 0, vm)
+  sm1_write_vm("dp", 0, vm)
+  sm1_write_vm("rp", 0, vm)
+  sm1_write_vm("t_ext", 0, vm)
+  sm1_write_vm("n_ext", 0, vm)
+  sm1_write_vm("status", 0, vm)
+  ClearMemory
 
   addr = 0
   hFile = Open file For Input
-  While Not Eof(hFile)
+  While (Not Eof(hFile)) And (addr < Val(tbramSize.text))
    word = Read #hFile As Short
    sm1_mem_put(addr, word, vm)
    addr = addr + 1
-   If (addr > 16387) Then Break
   Wend
   sm1_write_vm("pc", sm1_mem_get(0, vm), vm)
   MemColor
@@ -232,6 +247,9 @@ Public Sub LoadFile()
   loaded = True
   bStart.Enabled = True
   bSTEP.enabled = True
+  cbLOGPRG.Enabled = True
+  cbLOGSTK.enabled = True
+  cbLOGMEM.enabled = True
 End
 
 Public Sub MemColor()
@@ -497,11 +515,11 @@ Public Sub Log_(op_word As String)
     op_word &= "N_EXT:" & Hex$(CLong(sm1_read_vm("n_ext", vm)) And &hffff&, 4) & " "
     op_word &= "STATUS:" & Hex$(CLong(CByte(sm1_read_vm("status", vm))) And &hffff&, 4) & " "
     op_word &= "]\n     DS[ "
-    For n = 0 To dsSize - 1
+    For n = 0 To tbdsSize.text - 1
       op_word &= Hex$(CLong(sm1_read_ds(n, vm)) And &hffff&, 4) & " "
     Next
     op_word &= "]\n     RS[ "
-    For n = 0 To rsSize - 1
+    For n = 0 To tbrsSize.text - 1
       op_word &= Hex$(CLong(sm1_read_rs(n, vm)) And &hffff&, 4) & " "
     Next
     op_word &= "]"
