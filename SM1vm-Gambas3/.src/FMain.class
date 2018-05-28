@@ -59,7 +59,7 @@ Public mDP As Integer = 0
 Public stopBtn As Boolean = False
 Public file As String
 Static loaded As Boolean
-
+Public cbIRQToggle As Boolean = False ' Double click on irq. Gambas bug?
 
 
 Public Sub Form_Open()
@@ -598,7 +598,6 @@ Public Sub bStep_Click()
   StacksRefresh
   MemColor
   op(word)
-  Print ret
 End
 
 Public Sub bStart_Click()
@@ -627,6 +626,11 @@ Public Sub taTERMINAL_KeyPress()
 End
 
 Public Sub cbIRQ_Click()
+  If cbIRQToggle = True Then
+    cbIRQToggle = False
+    Return
+  Endif
   sm1_write_vm("status", CByte(sm1_read_vm("status", vm)) Or ST_IRQ, vm)
+  cbIRQToggle = True
 End
 
