@@ -168,6 +168,8 @@ Public Sub Form_Open()
   cbRCVQT.Enabled = False
   cbIRQ.Enabled = False
   cbIMK.Enabled = False
+  
+  taTERMINAL.enabled = False
 
   With tMEM
    .Columns.Count = 128
@@ -257,6 +259,7 @@ Public Sub LoadFile()
   cbRCVQT.Enabled = True
   cbIRQ.Enabled = True
   cbIMK.Enabled = True
+  taTERMINAL.enabled = True
   
   sm1_write_vm("pc", 0, vm)
   sm1_write_vm("dp", 0, vm)
@@ -410,8 +413,10 @@ Public Sub Op(word As Integer)
   "ALU_OP_MOD",
   "ALU_OP_BYE",
   "ALU_OP_SETST"]
-
-  If (word And OP_LIT) Then
+  
+  If ret = 9 Then
+    op_word = Hex$(LineCounter, 4) & " IRQ (" & Hex$(CLong(sm1_read_vm("t_ext", vm) And &hffff&), 4) & ")"
+  Else If (word And OP_LIT) Then
     tbADDR_LIT.text = Hex$(CLong(ARG_LIT(word)) And &hffff&, 4)
     op_word &= Hex$(LineCounter, 4) & " OP_LIT " & Hex$(CLong(ARG_LIT(word)) And &hffff&, 4)
     tbWORDstr.text = "OP_LIT"
@@ -514,6 +519,8 @@ Function RET_COND() As String
       Return "ROM_WRITE"
     Case 8
       Return "MEM_OVER"
+    Case 9
+      Return "IRQ"
     Case 254
       Return "ERROR"
     Case 255
@@ -534,7 +541,7 @@ Public Sub Log_(op_word As String)
      Close hFile
   Endif
  
-  If cbLOGSTK.value Then    
+  If cbLOGSTK.value Then
     Try hFile = Open file & ".logstk" For Write Append
     If Error Then hFile = Open file & ".logstk" For Write Create
     op_word = ""
@@ -587,10 +594,11 @@ Public Sub bStep_Click()
   tbWORD.text = Hex$(CLong(word) And &hffff&, 4)
   ret = sm1_step(word, vm)
   tbRESULT.text = RET_COND()
-  op(word)
   RegistersRefresh
   StacksRefresh
   MemColor
+  op(word)
+  Print ret
 End
 
 Public Sub bStart_Click()
@@ -598,7 +606,7 @@ Public Sub bStart_Click()
   cbLOGSTK.Enabled = False
   cbLOGMEM.Enabled = False
   bStop.Enabled = True
-  While ret = 0 And stopBtn = False
+  While (ret = 0 Or ret = 9) And stopBtn = False
     bStep_Click
     Wait 0.01
   Wend
