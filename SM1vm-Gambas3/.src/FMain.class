@@ -50,6 +50,21 @@ Const ALU_F_T2N As Byte = &h80&
 Const ALU_F_T2R As Byte = &h40&
 Const ALU_F_N2T As Byte = &h20&
 Const ALU_F_R2P As Byte = &h10&
+
+'Return Condition
+Const RC_OK As Byte = &h00& ' ok
+Const RC_DS_UNDER_FLOW As Byte = &h01& ' data stack underflow
+Const RC_DS_OVER_FLOW As Byte = &h00& ' data stack over flow
+Const RC_RS_OVER_FLOW As Byte = &h03& ' Return stack over flow
+Const RC_RS_UNDER_FLOW As Byte = &h04& ' Return stack under flow
+Const RC_PC_OVER_FLOW As Byte = &h05& ' program counter overflow
+Const RC_OP_UNKNOWN As Byte = &h06& ' operator unknown
+Const RC_ROM_WRITE As Byte = &h07& ' rom Write
+Const RC_MEM_OVERFLOW As Byte = &h08& ' out Of Memory access
+Const RC_IRQ As Byte = &h09& ' irq execute
+Const RC_ERROR As Byte = &hFE& ' generic Error
+Const RC_BYE As Byte = &hFF& ' Exit
+
 '//////////////////////////////////////// SM1vm END/////////////////////////////////////////
 
 Public LineCounter As Long = 1
@@ -59,7 +74,7 @@ Public mDP As Integer = 0
 Public stopBtn As Boolean = False
 Public file As String
 Static loaded As Boolean
-Public cbIRQToggle As Boolean = False ' Double click on irq. Gambas bug?
+Public cbIRQToggle As Boolean = False 'Double click on irq. Gambas bug?
 
 
 Public Sub Form_Open()
@@ -465,7 +480,7 @@ Public Sub Op(word As Integer)
     End Select
   Endif
 
-  If ret <> 0 Then
+  If ret <> RC_OK Then
     taPROGRAM.text &= "[!]"
   Else
     taPROGRAM.text &= "   "
@@ -501,29 +516,29 @@ End
 
 Function RET_COND() As String
   Select Case ret
-    Case 0
+    Case RC_OK
       Return "OK"
-    Case 1
+    Case RC_DS_UNDER_FLOW
       Return "DS_UNDER"
-    Case 2
+    Case RC_DS_OVER_FLOW
       Return "DS_OVER"
-    Case 3
+    Case RC_RS_OVER_FLOW
       Return "RS_OVER"
-    Case 4
+    Case RC_RS_UNDER_FLOW
       Return "RS_UNDER"
-    Case 5
+    Case RC_PC_OVER_FLOW
       Return "PC_OVER"
-    Case 6
+    Case RC_OP_UNKNOWN
       Return "OP_UNKN"
-    Case 7
+    Case RC_ROM_WRITE
       Return "ROM_WRITE"
-    Case 8
+    Case RC_MEM_OVERFLOW
       Return "MEM_OVER"
-    Case 9
+    Case RC_IRQ
       Return "IRQ"
-    Case 254
+    Case RC_ERROR
       Return "ERROR"
-    Case 255
+    Case RC_BYE
       Return "BYE"
     Case Else
       Return "???"
@@ -605,7 +620,7 @@ Public Sub bStart_Click()
   cbLOGSTK.Enabled = False
   cbLOGMEM.Enabled = False
   bStop.Enabled = True
-  While (ret = 0 Or ret = 9) And stopBtn = False
+  While (ret = RC_OK Or ret = RC_IRQ) And stopBtn = False
     bStep_Click
     Wait 0.01
   Wend
