@@ -1,5 +1,12 @@
 ' Gambas class file
 
+ ' SM1vm GUI
+ '
+ ' License: GNU GPL V3
+ '
+ ' Created on: 23 may.2018
+ ' Author: Emiliano Augusto Gonzalez(egonzalez.hiperion@gmail.com)
+
 Public Sub Form_Open()
   Me.Title = "SM1 Load File"
   bLoadACCEPT.text = "ACCEPT"

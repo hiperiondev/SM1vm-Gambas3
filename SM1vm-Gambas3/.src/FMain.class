@@ -1,5 +1,13 @@
 ' Gambas class file
 
+ 
+ ' SM1vm GUI
+ '
+ ' License: GNU GPL V3
+ '
+ ' Created on: 23 may.2018
+ ' Author: Emiliano Augusto Gonzalez(egonzalez.hiperion@gmail.com)
+
 '//////////////////////////////////////// SM1vm ////////////////////////////////////////////
 ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Change !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Library "/opt/Hiperion/Desarrollos/workspace_SM1/SM1lib/Release/libSM1lib"
@@ -154,6 +162,12 @@ Public Sub Form_Open()
   cbLOGPRG.Enabled = False
   cbLOGSTK.enabled = False
   cbLOGMEM.enabled = False
+  
+  cbSNDTN.Enabled = False
+  cbRCVTN.Enabled = False
+  cbRCVQT.Enabled = False
+  cbIRQ.Enabled = False
+  cbIMK.Enabled = False
 
   With tMEM
    .Columns.Count = 128
@@ -237,6 +251,13 @@ Public Sub LoadFile()
   tbdsSize.Enabled = False
   
   vm = sm1_init(Val(tbramSize.text), Val(tbrsSize.text), Val(tbdsSize.text))
+  
+  cbSNDTN.Enabled = True
+  cbRCVTN.Enabled = True
+  cbRCVQT.Enabled = True
+  cbIRQ.Enabled = True
+  cbIMK.Enabled = True
+  
   sm1_write_vm("pc", 0, vm)
   sm1_write_vm("dp", 0, vm)
   sm1_write_vm("rp", 0, vm)
