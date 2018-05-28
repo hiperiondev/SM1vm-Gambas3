@@ -135,13 +135,6 @@
       MoveScaled(1,81,141,4)
       #Public = True
     }
-    { sbIRQ SwitchButton
-      MoveScaled(180,22,12,4)
-    }
-    { lIRQ Label
-      MoveScaled(180,19,12,4)
-      Alignment = Align.Center
-    }
     { bRESET Button
       MoveScaled(181,75,11,4)
     }

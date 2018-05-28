@@ -1,8 +1,11 @@
 ' Gambas class file
 
-' !!!!!!! Change !!!!!!!!!!!!
+'//////////////////////////////////////// SM1vm ////////////////////////////////////////////
+' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Change !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Library "/opt/Hiperion/Desarrollos/workspace_SM1/SM1lib/Release/libSM1lib"
-' !!!!!!!!!!!!!!!!!!!!!!!!!!!
+' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+'VM api
 Extern sm1_init(ramSize As Integer, rsSize As Integer, dsSize As Integer) As Pointer Exec "init"
 Extern sm1_step(word As Integer, vm As Pointer) As Integer Exec "step"
 Extern sm1_mem_get(addr As Integer, vm As Pointer) As Integer Exec "mem_get"
@@ -13,28 +16,33 @@ Extern sm1_read_ds(addr As Integer, vm As Pointer) As Integer Exec "read_ds"
 Extern sm1_write_ds(addr As Integer, word As Integer, vm As Pointer) As Integer Exec "write_ds"
 Extern sm1_read_rs(addr As Integer, vm As Pointer) As Integer Exec "read_rs"
 Extern sm1_write_rs(addr As Integer, word As Integer, vm As Pointer) As Integer Exec "write_rs"
+
+'New VM pointer
 Static Public vm As Pointer
-'Delta
+
+'Delta DS/RS
 Public delta As Short[] = [0, 1, -2, -1]
+
 'Status flags
 Const ST_SNDTN As Byte = &h01&
 Const ST_RCVTN As Byte = &h02&
 Const ST_RCVQT As Byte = &h04&
 Const ST_IRQ As Byte = &h08&
 Const ST_IMK As Byte = &h10&
+
 'Operation types
 Const OP_JMP As Short = &h0000&
 Const OP_JZ As Short = &h2000&
 Const OP_CALL As Short = &h4000&
 Const OP_ALU As Short = &h6000&
 Const OP_LIT As Long = &h8000&
+
 'ALU flags
 Const ALU_F_T2N As Byte = &h80&
 Const ALU_F_T2R As Byte = &h40&
 Const ALU_F_N2T As Byte = &h20&
 Const ALU_F_R2P As Byte = &h10&
-
-'///////////////////////////////////////////
+'//////////////////////////////////////// SM1vm END/////////////////////////////////////////
 
 Public LineCounter As Long = 1
 Public ret As Byte = 0
@@ -65,7 +73,6 @@ Public Sub Form_Open()
   bStart.text = "START"
   bStop.text = "STOP"
   bSTEP.text = "STEP"
-  lIRQ.text = "IRQ"
   lRESULT.text = "RESULT"
   lWORD.text = "WORD"
   bLOAD.text = "LOAD"
@@ -148,12 +155,11 @@ Public Sub Form_Open()
   cbLOGSTK.enabled = False
   cbLOGMEM.enabled = False
 
-
   With tMEM
    .Columns.Count = 128
    .Rows.Count = 128
    .font.name = "Sans"
-   .font.size = 9   
+   .font.size = 9
   End With
   For n = 0 To 127
     tMEM.Columns[n].width = 6
@@ -220,7 +226,6 @@ Public Sub ClearMemory()
   For addr = 0 To Val(tbramSize.text) - 1
     sm1_mem_put(addr, 0, vm)
   Next
-  
 End
 
 Public Sub LoadFile()
@@ -348,14 +353,13 @@ Public Sub StacksRefresh()
     tRP[rp, 0].Background = Color.Blue
     tDP[dp, 0].Background = Color.Blue
   Endif
-  
 End
 
 Public Sub Op(word As Integer)
-Dim op_word As String = ""
+  Dim op_word As String = ""
 
-' ALU operations
-Dim AluOP As String[] = [
+  ' ALU operations
+  Dim AluOP As String[] = [
   "ALU_OP_T",
   "ALU_OP_N",
   "ALU_OP_R",
@@ -386,63 +390,63 @@ Dim AluOP As String[] = [
   "ALU_OP_BYE",
   "ALU_OP_SETST"]
 
-If ret <> 0 Then
-  op_word &= "[!]"
-Else
-  op_word &= "   "
-Endif
-If (word And OP_LIT) Then
-  tbADDR_LIT.text = Hex$(CLong(ARG_LIT(word)) And &hffff&, 4)
-  op_word &= Hex$(LineCounter, 4) & " OP_LIT " & Hex$(CLong(ARG_LIT(word)) And &hffff&, 4)
-  tbWORDstr.text = "OP_LIT"
-Else
-  tbADDR_LIT.text = Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
-  Select Case OP_W(word)
-    Case OP_JZ
-      tbWORDstr.text = "OP_JZ"
-      op_word &= Hex$(LineCounter, 4) & " OP_JZ " & Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
-    Case OP_JMP
-      tbWORDstr.text = "OP_JMP"
-      op_word &= Hex$(LineCounter, 4) & " OP_JMP " & Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
-    Case OP_CALL
-      tbWORDstr.text = "OP_CALL"
-      op_word &= Hex$(LineCounter, 4) & " OP_CALL " & Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
-    Case OP_ALU
-      tbWORDstr.text = AluOP[ALU_OP(word)]
-      op_word &= Hex$(LineCounter, 4) & " " & AluOP[ALU_OP(word)] & " ("
-      If (word And ALU_F_R2P) Then
-        cbR2P.value = True
-        op_word &= "R2P "
-      Else
-        cbR2P.value = False
-      Endif
-      If (word And ALU_F_N2T) Then
-        cbN2T.value = True
-        op_word &= "N2T "
-      Else
-        cbN2T.value = False
-      Endif
-      If (word And ALU_F_T2R) Then
-        cbT2R.value = True
-        op_word &= "T2R "
-      Else
-        cbT2R.value = False
-      Endif
-      If (word And ALU_F_T2N) Then
-        cbT2N.value = True
-        op_word &= "T2N "
-      Else
-        cbT2N.value = False
-      Endif
-      tbDELTAR.text = delta[ALU_RS(word)]
-      tbDELTAD.text = delta[ALU_DS(word)]
-      op_word &= "RP:" & delta[ALU_RS(word)] & " DP:" & delta[ALU_DS(word)] & ")"
-  End Select
-Endif
+  If (word And OP_LIT) Then
+    tbADDR_LIT.text = Hex$(CLong(ARG_LIT(word)) And &hffff&, 4)
+    op_word &= Hex$(LineCounter, 4) & " OP_LIT " & Hex$(CLong(ARG_LIT(word)) And &hffff&, 4)
+    tbWORDstr.text = "OP_LIT"
+  Else
+    tbADDR_LIT.text = Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
+    Select Case OP_W(word)
+      Case OP_JZ
+        tbWORDstr.text = "OP_JZ"
+        op_word &= Hex$(LineCounter, 4) & " OP_JZ " & Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
+      Case OP_JMP
+        tbWORDstr.text = "OP_JMP"
+        op_word &= Hex$(LineCounter, 4) & " OP_JMP " & Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
+      Case OP_CALL
+        tbWORDstr.text = "OP_CALL"
+        op_word &= Hex$(LineCounter, 4) & " OP_CALL " & Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
+      Case OP_ALU
+        tbWORDstr.text = AluOP[ALU_OP(word)]
+        op_word &= Hex$(LineCounter, 4) & " " & AluOP[ALU_OP(word)] & " ("
+        If (word And ALU_F_R2P) Then
+          cbR2P.value = True
+          op_word &= "R2P "
+        Else
+          cbR2P.value = False
+        Endif
+        If (word And ALU_F_N2T) Then
+          cbN2T.value = True
+          op_word &= "N2T "
+        Else
+          cbN2T.value = False
+        Endif
+        If (word And ALU_F_T2R) Then
+          cbT2R.value = True
+          op_word &= "T2R "
+        Else
+          cbT2R.value = False
+        Endif
+        If (word And ALU_F_T2N) Then
+          cbT2N.value = True
+          op_word &= "T2N "
+        Else
+          cbT2N.value = False
+        Endif
+        tbDELTAR.text = delta[ALU_RS(word)]
+        tbDELTAD.text = delta[ALU_DS(word)]
+        op_word &= "RP:" & delta[ALU_RS(word)] & " DP:" & delta[ALU_DS(word)] & ")"
+    End Select
+  Endif
 
-taPROGRAM.text &= op_word & "\n"
-Log_(op_word)
-LineCounter = LineCounter + 1
+  If ret <> 0 Then
+    taPROGRAM.text &= "[!]"
+  Else
+    taPROGRAM.text &= "   "
+  Endif
+  taPROGRAM.text &= op_word & "\n"
+  Log_(op_word)
+  LineCounter = LineCounter + 1
 End
 
 Function OP_W(word As Short) As Short
@@ -530,13 +534,13 @@ Public Sub Log_(op_word As String)
       op_word &= Hex$(CLong(sm1_read_rs(n, vm)) And &hffff&, 4) & " "
     Next
     op_word &= "]"
-    
+  
     Print #hFile, op_word 
     Close hFile
   Endif
 
   If cbLOGMEM.value Then
-    
+
   Endif
 End
 
@@ -545,14 +549,6 @@ End
 Public Sub bLoad_Click()
   load.Activate
   load.Raise
-End
-
-Public Sub sbIRQ_Click()
-  If (sbIRQ.Value = True) Then 
-    sbIRQ.Background = Color.Red
-  Else
-    sbIRQ.Background = Color.Green
-  Endif
 End
 
 
@@ -566,7 +562,6 @@ End
 
 Public Sub bStep_Click()
   Dim word As Short
-
   word = sm1_mem_get(sm1_read_vm("pc", vm), vm)
   tbWORD.text = Hex$(CLong(word) And &hffff&, 4)
   ret = sm1_step(word, vm)
@@ -578,26 +573,31 @@ Public Sub bStep_Click()
 End
 
 Public Sub bStart_Click()
-cbLOGPRG.Enabled = False
-cbLOGSTK.Enabled = False
-cbLOGMEM.Enabled = False
-bStop.Enabled = True
-While ret = 0 And stopBtn = False
-  bStep_Click
-  Wait 0.01
-Wend
-stopBtn = False
-bStop.Enabled = False
-cbLOGPRG.Enabled = True
-cbLOGSTK.Enabled = True
-cbLOGMEM.Enabled = True
+  cbLOGPRG.Enabled = False
+  cbLOGSTK.Enabled = False
+  cbLOGMEM.Enabled = False
+  bStop.Enabled = True
+  While ret = 0 And stopBtn = False
+    bStep_Click
+    Wait 0.01
+  Wend
+  stopBtn = False
+  bStop.Enabled = False
+  cbLOGPRG.Enabled = True
+  cbLOGSTK.Enabled = True
+  cbLOGMEM.Enabled = True
 End
 
 Public Sub bStop_Click()
-stopBtn = True
+  stopBtn = True
 End
 
 Public Sub taTERMINAL_KeyPress()
   sm1_write_vm("t_ext", Asc(Key.Text), vm)
   sm1_write_vm("status", CByte(sm1_read_vm("status", vm)) Or ST_RCVTN, vm)
 End
+
+Public Sub cbIRQ_Click()
+  sm1_write_vm("status", CByte(sm1_read_vm("status", vm)) Or ST_IRQ, vm)
+End
+
