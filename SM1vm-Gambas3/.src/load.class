@@ -9,7 +9,8 @@ End
 
 Public Sub bLoadACCEPT_Click()
   FMain.tbFILE.text = FileChooser1.SelectedPath
-  FMain.LoadFile(FileChooser1.SelectedPath)
+  FMain.file = FileChooser1.SelectedPath
+  FMain.LoadFile
   load.Close
 End
 

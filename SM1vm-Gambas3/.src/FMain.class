@@ -3,7 +3,6 @@
 ' !!!!!!! Change !!!!!!!!!!!!
 Library "/opt/Hiperion/Desarrollos/workspace_SM1/SM1lib/Release/libSM1lib"
 ' !!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 Extern sm1_init(ramSize As Integer, rsSize As Integer, dsSize As Integer) As Pointer Exec "init"
 Extern sm1_step(word As Integer, vm As Pointer) As Integer Exec "step"
 Extern sm1_mem_get(addr As Integer, vm As Pointer) As Integer Exec "mem_get"
@@ -15,13 +14,6 @@ Extern sm1_write_ds(addr As Integer, word As Integer, vm As Pointer) As Integer 
 Extern sm1_read_rs(addr As Integer, vm As Pointer) As Integer Exec "read_rs"
 Extern sm1_write_rs(addr As Integer, word As Integer, vm As Pointer) As Integer Exec "write_rs"
 Static Public vm As Pointer
-Public LineCounter As Long = 1
-Public ret As Byte = 0
-Public mRP As Integer = 0
-Public mDP As Integer = 0
-Public stopBtn As Boolean = False
-'Static result As Integer
-Static loaded As Boolean
 'Delta
 Public delta As Short[] = [0, 1, -2, -1]
 'Status flags
@@ -41,6 +33,20 @@ Const ALU_F_T2N As Byte = &h80&
 Const ALU_F_T2R As Byte = &h40&
 Const ALU_F_N2T As Byte = &h20&
 Const ALU_F_R2P As Byte = &h10&
+
+Const dsSize As Byte = 32
+Const rsSize As Byte = 32
+Const ramSize As Long = 32768
+'///////////////////////////////////////////
+
+Public LineCounter As Long = 1
+Public ret As Byte = 0
+Public mRP As Integer = 0
+Public mDP As Integer = 0
+Public stopBtn As Boolean = False
+Public file As String
+Static loaded As Boolean
+
 
 
 Public Sub Form_Open()
@@ -121,8 +127,14 @@ Public Sub Form_Open()
   tbMaxRP.font.size = 7
   lMaxDP.text = "mDP"
   lMaxRP.text = "mRP"
+  cbLOGPRG.font.size = 8
+  cbLOGPRG.text = "LOGPRG"
+  cbLOGSTK.font.size = 8
+  cbLOGSTK.text = "LOGSTK"
+  cbLOGMEM.font.size = 8
+  cbLOGMEM.text = "LOGMEM"
   
-  vm = sm1_init(16384, 32, 32)
+  vm = sm1_init(ramSize, rsSize, dsSize)
   sm1_write_vm("pc", 0, vm)
   sm1_write_vm("dp", 0, vm)
   sm1_write_vm("rp", 0, vm)
@@ -131,15 +143,6 @@ Public Sub Form_Open()
   sm1_write_vm("status", 0, vm)
   
   ClearMemory
-  
-  tbPC.text = sm1_read_vm("pc", vm)
-  tbT.text = sm1_read_vm("t", vm)
-  tbDP.text = sm1_read_vm("dp", vm)
-  tbRP.text = sm1_read_vm("rp", vm)
-  tbT_EXT.text = sm1_read_vm("t_ext", vm)
-  tbN_EXT.text = sm1_read_vm("n_ext", vm)
-  tbSTATUS.text = sm1_read_vm("status", vm)
-  sbIRQ.Value = 0
 
   With tMEM
    .Columns.Count = 128
@@ -209,11 +212,11 @@ Public Sub ClearMemory()
   Next
 End
 
-Public Sub LoadFile(file As String)
+Public Sub LoadFile()
   Dim hFile As File
-  Dim word As Short
-  Dim addr As Short
- 
+  Dim word As Long
+  Dim addr As Long
+
   addr = 0
   hFile = Open file For Input
   While Not Eof(hFile)
@@ -222,6 +225,7 @@ Public Sub LoadFile(file As String)
    addr = addr + 1
    If (addr > 16387) Then Break
   Wend
+  sm1_write_vm("pc", sm1_mem_get(0, vm), vm)
   MemColor
   RegistersRefresh
   StacksRefresh
@@ -323,6 +327,8 @@ Public Sub StacksRefresh()
 End
 
 Public Sub Op(word As Integer)
+Dim op_word As String = ""
+
 ' ALU operations
 Dim AluOP As String[] = [
   "ALU_OP_T",
@@ -356,58 +362,61 @@ Dim AluOP As String[] = [
   "ALU_OP_SETST"]
 
 If ret <> 0 Then
-  taPROGRAM.text &= "[!]"
+  op_word &= "[!]"
 Else
-  taPROGRAM.text &= "   "
+  op_word &= "   "
 Endif
 If (word And OP_LIT) Then
   tbADDR_LIT.text = Hex$(CLong(ARG_LIT(word)) And &hffff&, 4)
-  taPROGRAM.text &= Hex$(LineCounter, 4) & " OP_LIT " & Hex$(CLong(ARG_LIT(word)) And &hffff&, 4)
+  op_word &= Hex$(LineCounter, 4) & " OP_LIT " & Hex$(CLong(ARG_LIT(word)) And &hffff&, 4)
+  tbWORDstr.text = "OP_LIT"
 Else
   tbADDR_LIT.text = Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
   Select Case OP_W(word)
     Case OP_JZ
       tbWORDstr.text = "OP_JZ"
-      taPROGRAM.text &= Hex$(LineCounter, 4) & " OP_JZ " & Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
+      op_word &= Hex$(LineCounter, 4) & " OP_JZ " & Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
     Case OP_JMP
       tbWORDstr.text = "OP_JMP"
-      taPROGRAM.text &= Hex$(LineCounter, 4) & " OP_JMP " & Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
+      op_word &= Hex$(LineCounter, 4) & " OP_JMP " & Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
     Case OP_CALL
       tbWORDstr.text = "OP_CALL"
-      taPROGRAM.text &= Hex$(LineCounter, 4) & " OP_CALL " & Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
+      op_word &= Hex$(LineCounter, 4) & " OP_CALL " & Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
     Case OP_ALU
       tbWORDstr.text = AluOP[ALU_OP(word)]
-      taPROGRAM.text &= Hex$(LineCounter, 4) & " " & AluOP[ALU_OP(word)] & " ("
+      op_word &= Hex$(LineCounter, 4) & " " & AluOP[ALU_OP(word)] & " ("
       If (word And ALU_F_R2P) Then
         cbR2P.value = True
-        taPROGRAM.text = taPROGRAM.text & "R2P "
+        op_word &= "R2P "
       Else
         cbR2P.value = False
       Endif
       If (word And ALU_F_N2T) Then
         cbN2T.value = True
-        taPROGRAM.text = taPROGRAM.text & "N2T "
+        op_word &= "N2T "
       Else
         cbN2T.value = False
       Endif
       If (word And ALU_F_T2R) Then
         cbT2R.value = True
-        taPROGRAM.text = taPROGRAM.text & "T2R "
+        op_word &= "T2R "
       Else
         cbT2R.value = False
       Endif
       If (word And ALU_F_T2N) Then
         cbT2N.value = True
-        taPROGRAM.text = taPROGRAM.text & "T2N "
+        op_word &= "T2N "
       Else
         cbT2N.value = False
       Endif
       tbDELTAR.text = delta[ALU_RS(word)]
       tbDELTAD.text = delta[ALU_DS(word)]
-      taPROGRAM.text &= "RP:" & delta[ALU_RS(word)] & " DP:" & delta[ALU_DS(word)] & ")"
+      op_word &= "RP:" & delta[ALU_RS(word)] & " DP:" & delta[ALU_DS(word)] & ")"
   End Select
 Endif
-taPROGRAM.text = taPROGRAM.text & "\n"
+
+taPROGRAM.text &= op_word & "\n"
+Log_(op_word)
 LineCounter = LineCounter + 1
 End
 
@@ -464,6 +473,48 @@ Function RET_COND() As String
   End Select
 End
 
+Public Sub Log_(op_word As String)
+  Dim hFile As File
+  Dim n As Byte
+
+  If cbLOGPRG.value Then
+     Try hFile = Open file & ".logprg" For Write Append
+     If Error Then hFile = Open file & ".logprg" For Write Create
+     Print #hFile, Trim$(op_word)
+     Close hFile
+  Endif
+ 
+  If cbLOGSTK.value Then    
+    Try hFile = Open file & ".logstk" For Write Append
+    If Error Then hFile = Open file & ".logstk" For Write Create
+    op_word = ""
+    op_word &= Hex$(LineCounter, 4) & " RG[ "
+    op_word &= "T:" & Hex$(CLong(sm1_read_vm("t", vm)) And &hffff&, 4) & " "
+    op_word &= "PC:" & Hex$(CLong(sm1_read_vm("pc", vm)) And &hffff&, 4) & " "
+    op_word &= "DP:" & Hex$(CLong(sm1_read_vm("dp", vm)) And &hffff&, 4) & " "
+    op_word &= "RP:" & Hex$(CLong(sm1_read_vm("rp", vm)) And &hffff&, 4) & " "
+    op_word &= "T_EXT:" & Hex$(CLong(sm1_read_vm("t_ext", vm)) And &hffff&, 4) & " "
+    op_word &= "N_EXT:" & Hex$(CLong(sm1_read_vm("n_ext", vm)) And &hffff&, 4) & " "
+    op_word &= "STATUS:" & Hex$(CLong(CByte(sm1_read_vm("status", vm))) And &hffff&, 4) & " "
+    op_word &= "]\n     DS[ "
+    For n = 0 To dsSize - 1
+      op_word &= Hex$(CLong(sm1_read_ds(n, vm)) And &hffff&, 4) & " "
+    Next
+    op_word &= "]\n     RS[ "
+    For n = 0 To rsSize - 1
+      op_word &= Hex$(CLong(sm1_read_rs(n, vm)) And &hffff&, 4) & " "
+    Next
+    op_word &= "]"
+    
+    Print #hFile, op_word 
+    Close hFile
+  Endif
+
+  If cbLOGMEM.value Then
+    
+  Endif
+End
+
 '/////////////////////////////////////////////////////////////////////////
 
 Public Sub bLoad_Click()
@@ -484,16 +535,13 @@ Public Sub bRESET_Click()
   sm1_write_vm("pc", 0, vm)
   sm1_write_vm("dp", 0, vm)
   sm1_write_vm("rp", 0, vm)
+  sm1_write_vm("status", 0, vm)
   RegistersRefresh
 End
 
 Public Sub bStep_Click()
   Dim word As Short
-  
-  If loaded = False Then 
-    tbFILE.text = "LOAD FILE FIRST!!!"
-    Return
-  Endif
+
   word = sm1_mem_get(sm1_read_vm("pc", vm), vm)
   tbWORD.text = Hex$(CLong(word) And &hffff&, 4)
   ret = sm1_step(word, vm)
@@ -505,6 +553,9 @@ Public Sub bStep_Click()
 End
 
 Public Sub bStart_Click()
+cbLOGPRG.Enabled = False
+cbLOGSTK.Enabled = False
+cbLOGMEM.Enabled = False
 bStop.Enabled = True
 While ret = 0 And stopBtn = False
   bStep_Click
@@ -512,6 +563,9 @@ While ret = 0 And stopBtn = False
 Wend
 stopBtn = False
 bStop.Enabled = False
+cbLOGPRG.Enabled = True
+cbLOGSTK.Enabled = True
+cbLOGMEM.Enabled = True
 End
 
 Public Sub bStop_Click()
