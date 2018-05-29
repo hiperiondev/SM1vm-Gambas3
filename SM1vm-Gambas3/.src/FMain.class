@@ -261,7 +261,7 @@ End
 
 Public Sub LoadFile()
   Dim hFile As File
-  Dim word As Long
+  Dim word As String
   Dim addr As Long
   tbramSize.Enabled = False
   tbrsSize.Enabled = False
@@ -287,11 +287,13 @@ Public Sub LoadFile()
   addr = 0
   hFile = Open file For Input
   While (Not Eof(hFile)) And (addr < Val(tbramSize.text))
-   word = Read #hFile As Short
-   sm1_mem_put(addr, word, vm)
+   'word = Read #hFile As Short
+   Line Input #hFile, word
+   word = "&H" & word
+   sm1_mem_put(addr, Val(word), vm)
    addr = addr + 1
   Wend
-  sm1_write_vm("pc", sm1_mem_get(0, vm), vm)
+  'sm1_write_vm("pc", sm1_mem_get(0, vm), vm)
   MemColor
   RegistersRefresh
   StacksRefresh
