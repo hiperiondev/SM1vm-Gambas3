@@ -218,16 +218,17 @@
       MoveScaled(28,23,4,4)
     }
     { cbLOGPRG CheckBox
-      MoveScaled(181,86,12,4)
+      MoveScaled(181,84,12,4)
     }
     { cbLOGSTK CheckBox
-      MoveScaled(181,89,12,4)
+      MoveScaled(181,87,12,4)
     }
     { cbLOGMEM CheckBox
-      MoveScaled(181,92,12,4)
+      MoveScaled(181,90,12,4)
     }
-    { tbRamSize TextBox
+    { !tbRamSize TextBox
       MoveScaled(1,75,7,4)
+      #Public = True
     }
     { tbrsSize TextBox
       MoveScaled(12,75,5,4)
@@ -243,6 +244,9 @@
     }
     { ldsSize Label
       MoveScaled(27,75,4,4)
+    }
+    { bDUMP Button
+      MoveScaled(181,94,11,4)
     }
   }
   { tRP TableView

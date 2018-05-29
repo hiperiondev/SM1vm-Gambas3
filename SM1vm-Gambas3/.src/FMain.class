@@ -173,6 +173,9 @@ Public Sub Form_Open()
   tbramSize.text = 32768
   tbrsSize.text = 32
   tbdsSize.text = 32
+  bDUMP.text = "DUMP"
+  bDUMP.Enabled = False
+  bRESET.Enabled = False
   
   cbLOGPRG.Enabled = False
   cbLOGSTK.enabled = False
@@ -275,6 +278,8 @@ Public Sub LoadFile()
   cbIRQ.Enabled = True
   cbIMK.Enabled = True
   taTERMINAL.enabled = True
+  bDUMP.Enabled = True
+  bRESET.Enabled = True
   
   sm1_write_vm("pc", 0, vm)
   sm1_write_vm("dp", 0, vm)
@@ -287,13 +292,11 @@ Public Sub LoadFile()
   addr = 0
   hFile = Open file For Input
   While (Not Eof(hFile)) And (addr < Val(tbramSize.text))
-   'word = Read #hFile As Short
    Line Input #hFile, word
    word = "&H" & word
    sm1_mem_put(addr, Val(word), vm)
    addr = addr + 1
   Wend
-  'sm1_write_vm("pc", sm1_mem_get(0, vm), vm)
   MemColor
   RegistersRefresh
   StacksRefresh
@@ -651,3 +654,9 @@ Public Sub cbIRQ_Click()
   cbIRQToggle = True
 End
 
+
+Public Sub bDUMP_Click()
+ stopBtn = True
+  Dump.Activate
+  Dump.Raise
+End

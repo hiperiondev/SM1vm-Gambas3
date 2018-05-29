@@ -23,4 +23,3 @@ End
 Public Sub bLoadCANCEL_Click()
   load.Close
 End
-

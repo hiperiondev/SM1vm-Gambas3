@@ -1,0 +1,18 @@
+' Gambas class file
+
+
+Public Sub Form_Open()
+
+   Me.Title = "Dump Memory"
+  lSTART.text = "START"
+  lSTOP.text = "STOP"
+  lSTART.font.size = 7
+  lSTOP.font.size = 7
+  tbSTART.font.size = 7
+  tbSTOP.font.size = 7
+  tbDUMP.font.size = 9
+  bDUMP.text = "DUMP"
+  tbSTOP.text = Val(FMain.tbramSize.text) - 1
+  tbSTART.text = 0
+End
+
