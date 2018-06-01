@@ -11,12 +11,15 @@ Public Sub Form_Open()
   Me.Title = "SM1 Load File"
   bLoadACCEPT.text = "ACCEPT"
   bLoadCANCEL.text = "CANCEL"
+  rbBIN.text = "BIN"
+  rbHEX.text = "HEX"
+  rbBIN.Value = True
 End
 
 Public Sub bLoadACCEPT_Click()
   FMain.tbFILE.text = FileChooser1.SelectedPath
   FMain.file = FileChooser1.SelectedPath
-  FMain.LoadFile
+  FMain.LoadFile(rbBIN.Value)
   load.Close
 End
 

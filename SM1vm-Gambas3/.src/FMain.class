@@ -1,6 +1,5 @@
 ' Gambas class file
 
- 
  ' SM1vm GUI
  '
  ' License: GNU GPL V3
@@ -24,6 +23,9 @@ Extern sm1_read_ds(addr As Integer, vm As Pointer) As Integer Exec "read_ds"
 Extern sm1_write_ds(addr As Integer, word As Integer, vm As Pointer) As Integer Exec "write_ds"
 Extern sm1_read_rs(addr As Integer, vm As Pointer) As Integer Exec "read_rs"
 Extern sm1_write_rs(addr As Integer, word As Integer, vm As Pointer) As Integer Exec "write_rs"
+' Extern sm1_instr() As Integer Exec "instr" ' H2
+
+
 
 'New VM pointer
 Static Public vm As Pointer
@@ -75,7 +77,6 @@ Public stopBtn As Boolean = False
 Public file As String
 Static loaded As Boolean
 Public cbIRQToggle As Boolean = False 'Double click on irq. Gambas bug?
-
 
 Public Sub Form_Open()
   Dim n As Integer
@@ -262,9 +263,10 @@ Public Sub ClearMemory()
   Next
 End
 
-Public Sub LoadFile()
+Public Sub LoadFile(type As Boolean)
   Dim hFile As File
-  Dim word As String
+  Dim wordstr As String
+  Dim wordsht As Short
   Dim addr As Long
   tbramSize.Enabled = False
   tbrsSize.Enabled = False
@@ -292,11 +294,17 @@ Public Sub LoadFile()
   addr = 0
   hFile = Open file For Input
   While (Not Eof(hFile)) And (addr < Val(tbramSize.text))
-   Line Input #hFile, word
-   word = "&H" & word
-   sm1_mem_put(addr, Val(word), vm)
+    If type = True Then
+      Read #hfile, wordsht
+      sm1_mem_put(addr, wordsht, vm)
+    Else
+      Line Input #hFile, wordstr
+      wordstr = "&H" & wordstr
+      sm1_mem_put(addr, Val(wordstr), vm)
+    Endif
    addr = addr + 1
   Wend
+  sm1_write_vm("pc", sm1_mem_get(0, vm), vm)
   MemColor
   RegistersRefresh
   StacksRefresh
@@ -611,6 +619,7 @@ End
 Public Sub bStep_Click()
   Dim word As Short
   word = sm1_mem_get(sm1_read_vm("pc", vm), vm)
+  'word = sm1_instr()
   tbWORD.text = Hex$(CLong(word) And &hffff&, 4)
   ret = sm1_step(word, vm)
   tbRESULT.text = RET_COND()

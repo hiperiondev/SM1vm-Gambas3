@@ -11,4 +11,10 @@
   { bLoadCANCEL Button
     MoveScaled(107,63,9,4)
   }
+  { rbBIN RadioButton
+    MoveScaled(2,63,19,4)
+  }
+  { rbHEX RadioButton
+    MoveScaled(12,63,24,4)
+  }
 }
