@@ -23,15 +23,12 @@ Extern sm1_read_ds(addr As Integer, vm As Pointer) As Integer Exec "read_ds"
 Extern sm1_write_ds(addr As Integer, word As Integer, vm As Pointer) As Integer Exec "write_ds"
 Extern sm1_read_rs(addr As Integer, vm As Pointer) As Integer Exec "read_rs"
 Extern sm1_write_rs(addr As Integer, word As Integer, vm As Pointer) As Integer Exec "write_rs"
-' Extern sm1_instr() As Integer Exec "instr" ' H2
-
-
 
 'New VM pointer
 Static Public vm As Pointer
 
 'Delta DS/RS
-Public delta As Short[] = [0, 1, -2, -1]
+Public delta As Short[] = [0, 1, -1, -2]
 
 'Status flags
 Const ST_SNDTN As Byte = &h01&
@@ -304,7 +301,7 @@ Public Sub LoadFile(type As Boolean)
     Endif
    addr = addr + 1
   Wend
-  sm1_write_vm("pc", sm1_mem_get(0, vm), vm)
+  'sm1_write_vm("pc", sm1_mem_get(0, vm), vm)
   MemColor
   RegistersRefresh
   StacksRefresh
@@ -360,7 +357,7 @@ Public Sub RegistersRefresh()
   
   If st And ST_SNDTN Then 
     cbSNDTN.value = True
-    taTERMINAL &= Chr$(sm1_read_vm("t_ext", vm))
+    taTERMINAL.text &= Chr$(sm1_read_vm("t_ext", vm))
   End If
   If st And ST_RCVTN Then
    cbRCVTN.value = True
@@ -412,35 +409,38 @@ Public Sub Op(word As Integer)
 
   ' ALU operations
   Dim AluOP As String[] = [
-  "ALU_OP_T",
-  "ALU_OP_N",
-  "ALU_OP_R",
-  "ALU_OP_GET",
-  "ALU_OP_PUT",
-  "ALU_OP_DPLUS",
-  "ALU_OP_DMUL",
-  "ALU_OP_AND",
-  "ALU_OP_OR",
-  "ALU_OP_XOR",
-  "ALU_OP_NEG",
-  "ALU_OP_DEC",
-  "ALU_OP_EQ0",
-  "ALU_OP_EQ",
-  "ALU_OP_UCMP",
-  "ALU_OP_CMP",
-  "ALU_OP_RSHIFT",
-  "ALU_OP_LSHIFT",
-  "ALU_OP_SP",
-  "ALU_OP_RS",
-  "ALU_OP_SETSP",
-  "ALU_OP_SETRP",
-  "ALU_OP_ST",
-  "ALU_OP_TX",
-  "ALU_OP_RX",
-  "ALU_OP_UMOD",
-  "ALU_OP_MOD",
-  "ALU_OP_BYE",
-  "ALU_OP_SETST"]
+ "ALU_OP_T",
+ "ALU_OP_N",
+ "ALU_OP_R",
+ "ALU_OP_GET",
+ "ALU_OP_PUT",
+ "ALU_OP_DPLUS",
+ "ALU_OP_DMUL",
+ "ALU_OP_AND",
+ "ALU_OP_OR",
+ "ALU_OP_XOR",
+ "ALU_OP_NEG",
+ "ALU_OP_DEC",
+ "ALU_OP_EQ0",
+ "ALU_OP_EQ",
+ "ALU_OP_UCMP",
+ "ALU_OP_CMP",
+ "ALU_OP_RSHIFT",
+ "ALU_OP_LSHIFT",
+ "ALU_OP_SP",
+ "ALU_OP_RS",
+ "ALU_OP_SETSP",
+ "ALU_OP_SETRP",
+ "ALU_OP_ST",
+ "ALU_OP_SETST",
+ "ALU_OP_TX",
+ "ALU_OP_RX",
+ "ALU_OP_UMOD",
+ "ALU_OP_MOD",
+ "ALU_OP_REG",
+ "ALU_OP_SETREG",
+ "ALU_OP_NOOP__",
+ "ALU_OP_BYE"]
   
   If ret = 9 Then
     op_word = Hex$(LineCounter, 4) & " IRQ (" & Hex$(CLong(sm1_read_vm("t_ext", vm) And &hffff&), 4) & ")"
@@ -619,7 +619,6 @@ End
 Public Sub bStep_Click()
   Dim word As Short
   word = sm1_mem_get(sm1_read_vm("pc", vm), vm)
-  'word = sm1_instr()
   tbWORD.text = Hex$(CLong(word) And &hffff&, 4)
   ret = sm1_step(word, vm)
   tbRESULT.text = RET_COND()
