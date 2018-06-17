@@ -118,8 +118,8 @@ Public Sub Form_Open()
   tbDELTAD.font.size = 8
   lFILE.text = "FILE"
   lPROGRAM.text = "PROGRAM"
-  taPROGRAM.font.name = "Sans"
-  taPROGRAM.font.size = 7
+  taPROGRAM.font.name = "Courier"
+  taPROGRAM.font.size = 8
   tbWORD.font.name = "Sans"
   tbWORD.font.size = 8
   tbADDR_LIT.font.name = "Sans"
@@ -339,6 +339,7 @@ Public Sub RegistersRefresh()
   Dim DP As Integer
   Dim RP As Integer
   
+  cbSNDTN.value = False
   tbT.text = Hex$(CLong(sm1_read_vm("t", vm)) And &hffff&, 4)
   tbPC.text = Hex$(CLong(sm1_read_vm("pc", vm)) And &hffff&, 4)
   DP = sm1_read_vm("dp", vm)
@@ -358,6 +359,7 @@ Public Sub RegistersRefresh()
   If st And ST_SNDTN Then 
     cbSNDTN.value = True
     taTERMINAL.text &= Chr$(sm1_read_vm("t_ext", vm))
+    sm1_write_vm("status", CByte(sm1_read_vm("status", vm)) And (Not ST_SNDTN), vm)
   End If
   If st And ST_RCVTN Then
    cbRCVTN.value = True
@@ -409,57 +411,57 @@ Public Sub Op(word As Integer)
 
   ' ALU operations
   Dim AluOP As String[] = [
- "ALU_OP_T",
- "ALU_OP_N",
- "ALU_OP_R",
- "ALU_OP_GET",
- "ALU_OP_PUT",
- "ALU_OP_DPLUS",
- "ALU_OP_DMUL",
- "ALU_OP_AND",
- "ALU_OP_OR",
- "ALU_OP_XOR",
- "ALU_OP_NEG",
- "ALU_OP_DEC",
- "ALU_OP_EQ0",
- "ALU_OP_EQ",
- "ALU_OP_UCMP",
- "ALU_OP_CMP",
- "ALU_OP_RSHIFT",
- "ALU_OP_LSHIFT",
- "ALU_OP_SP",
- "ALU_OP_RS",
- "ALU_OP_SETSP",
- "ALU_OP_SETRP",
- "ALU_OP_ST",
- "ALU_OP_SETST",
- "ALU_OP_TX",
- "ALU_OP_RX",
- "ALU_OP_UMOD",
- "ALU_OP_MOD",
- "ALU_OP_REG",
- "ALU_OP_SETREG",
- "ALU_OP_NOOP__",
- "ALU_OP_BYE"]
+ "TOP",
+ "SCN",
+ "RSK",
+ "GET",
+ "PUT",
+ "DPL",
+ "DML",
+ "AND",
+ "BOR",
+ "XOR",
+ "NEG",
+ "DEC",
+ "EQ0",
+ "EQU",
+ "UCP",
+ "CMP",
+ "RSH",
+ "LSH",
+ "GSP",
+ "GRS",
+ "SSP",
+ "SRP",
+ "GST",
+ "SST",
+ "SND",
+ "RCV",
+ "UMD",
+ "MOD",
+ "REG",
+ "SRG",
+ "NP2",
+ "BYE"]
   
   If ret = 9 Then
     op_word = Hex$(LineCounter, 4) & " IRQ (" & Hex$(CLong(sm1_read_vm("t_ext", vm) And &hffff&), 4) & ")"
   Else If (word And OP_LIT) Then
     tbADDR_LIT.text = Hex$(CLong(ARG_LIT(word)) And &hffff&, 4)
-    op_word &= Hex$(LineCounter, 4) & " OP_LIT " & Hex$(CLong(ARG_LIT(word)) And &hffff&, 4)
+    op_word &= Hex$(LineCounter, 4) & " LIT " & Hex$(CLong(ARG_LIT(word)) And &hffff&, 4)
     tbWORDstr.text = "OP_LIT"
   Else
     tbADDR_LIT.text = Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
     Select Case OP_W(word)
       Case OP_JZ
         tbWORDstr.text = "OP_JZ"
-        op_word &= Hex$(LineCounter, 4) & " OP_JZ " & Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
+        op_word &= Hex$(LineCounter, 4) & " JMZ " & Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
       Case OP_JMP
         tbWORDstr.text = "OP_JMP"
-        op_word &= Hex$(LineCounter, 4) & " OP_JMP " & Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
+        op_word &= Hex$(LineCounter, 4) & " JMP " & Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
       Case OP_CALL
         tbWORDstr.text = "OP_CALL"
-        op_word &= Hex$(LineCounter, 4) & " OP_CALL " & Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
+        op_word &= Hex$(LineCounter, 4) & " CAL " & Hex$(CLong(ARG_OP(word)) And &hffff&, 4)
       Case OP_ALU
         tbWORDstr.text = AluOP[ALU_OP(word)]
         op_word &= Hex$(LineCounter, 4) & " " & AluOP[ALU_OP(word)] & " ("
